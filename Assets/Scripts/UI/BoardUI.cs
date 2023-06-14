@@ -106,8 +106,23 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         notationGoPre();
     }
 
-    public void NotationGoNext()
+    public void NotationGoNext(int choice = -1)
     {
+        if (notation.Current.Next.Count > 1)
+        {
+            if (choice == -1)
+            {
+                // ScrollViewAlter scrollViewAlter = GameObject.Find("ScrollView-Alter").GetComponent<ScrollViewAlter>();
+                // scrollView未激活，不能直接获取组件，需要先获取父组件
+                ScrollViewAlter scrollViewAlter = GameObject.Find("Canvas").transform.Find("ScrollView-Alter").GetComponent<ScrollViewAlter>();
+                scrollViewAlter.SetAlterList(notation.Current);
+                return;
+            }
+            else
+            {
+                notation.ChangeChoice(choice);
+            }
+        }
         notationGoNext();
     }
 
