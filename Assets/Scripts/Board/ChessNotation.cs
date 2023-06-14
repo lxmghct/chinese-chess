@@ -201,5 +201,11 @@ namespace Xiangqi
             File.WriteAllText(path, pgn);
         }
 
+        public short GetLastMove()
+        {
+            if (Current.Pre == null) { return 0; }
+            return Current.Pre.Moves[Current.Pre.Choice];
+        }
+
     }
 }

@@ -24,6 +24,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     private Sprite[] pieceSprites;
     private Sprite[] pieceBorders;
     private GameObject[] choiceObjects;
+    private short moveOfAnimation = 0;
     private Dictionary<byte, GameObject> pieceObjects = new Dictionary<byte, GameObject>();
     private void LoadResources()
     {
@@ -220,11 +221,8 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     }
 
     //平滑移动棋子
-    private IEnumerator SmoothMove(RectTransform chessPiece, byte from, byte to, float duration)
+    private IEnumerator SmoothMove(RectTransform chessPiece, Vector2 start, Vector2 end, float duration)
     {
-        Vector2 start = positionToCoordinate(from);
-        Vector2 end = positionToCoordinate(to);
-    
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
@@ -244,15 +242,18 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
         // 移动完成后，确保棋子的位置准确到达目标位置
         chessPiece.anchoredPosition = end;
+        finishMovePiece();
+    }
+
+    private void finishMovePiece()
+    {
         canOperate = true;
-        if (pieceObjects.ContainsKey(to))
+        byte from = (byte) (moveOfAnimation >> 8);
+        if (notation.Current.Board.Pieces[from] == PIECE.Empty && pieceObjects.ContainsKey(from))
         {
-            Destroy(pieceObjects[to]);
-            pieceObjects.Remove(to);
+            Destroy(pieceObjects[from]);
+            pieceObjects.Remove(from);
         }
-        GameObject pieceObject = pieceObjects[from];
-        pieceObjects.Remove(from);
-        pieceObjects.Add(to, pieceObject);
     }
 
     private void movePiece(byte from, byte to)
@@ -261,9 +262,29 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         {
             return;
         }
-        GameObject pieceObject = pieceObjects[from];
-        pieceObject.transform.SetAsLastSibling();
-        StartCoroutine(SmoothMove(pieceObject.GetComponent<RectTransform>(), from, to, 0.3f));
+        GameObject startObject = pieceObjects[from];
+        byte[] pieces = notation.Current.Board.Pieces;
+        if (pieces[from] != PIECE.Empty) // 表明是悔棋
+        {
+            pieceObjects.Remove(from);
+            DrawPiece(from, pieces[from]);
+            Debug.Log("DrawPiece: " + from + ", " + pieces[from]);
+        }
+        else if (pieceObjects.ContainsKey(to))
+        {
+            pieceObjects[from] = pieceObjects[to];
+        }
+        else
+        {
+            pieceObjects.Remove(from);
+        }
+        pieceObjects[to] = startObject;
+        Vector2 start = positionToCoordinate(from);
+        Vector2 end = positionToCoordinate(to);
+        // 确保移动的棋子在最上层
+        startObject.transform.SetAsLastSibling();
+        moveOfAnimation = (short) (from << 8 | to);
+        StartCoroutine(SmoothMove(startObject.GetComponent<RectTransform>(), start, end, 0.3f));
     }
 
 }

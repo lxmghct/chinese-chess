@@ -71,4 +71,57 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         }
         updateChoice(0, EMPTY_POSITION);
     }
+
+    public void GotoNotationIndex(int index)
+    {
+        if (index < 0 || index >= notation.Current.GetMoveCount()) { return; }
+        notation.GoTo(index);
+        short move = notation.GetLastMove();
+        byte start = (byte)(move >> 8), end = (byte)(move & 0xff);
+        DrawPieces();
+        updateChoice(1, start);
+        updateChoice(2, end);
+    }
+
+    public void Withdraw()
+    {
+        if (!NotationGoPre()) { return; }
+        notation.GoNext();
+        notation.PopCurrentNode();
+    }
+
+    public bool NotationGoPre()
+    {
+        if (!canOperate || notation.Current.Pre == null) { return false; }
+        short currentMove = notation.GetLastMove();
+        notation.GoPre();
+        canOperate = false;
+        byte start = (byte)(currentMove >> 8), end = (byte)(currentMove & 0xff);
+        movePiece(end, start);
+        currentMove = notation.GetLastMove();
+        if (currentMove == 0)
+        {
+            updateChoice(1, EMPTY_POSITION);
+            updateChoice(2, EMPTY_POSITION);
+        }
+        else
+        {
+            updateChoice(1, (byte)(currentMove >> 8));
+            updateChoice(2, (byte)(currentMove & 0xff));
+        }
+        return true;
+    }
+
+    public bool NotationGoNext()
+    {
+        if (!canOperate || notation.Current.Next.Count == 0) { return false; }
+        notation.GoNext();
+        short currentMove = notation.GetLastMove();
+        canOperate = false;
+        byte start = (byte)(currentMove >> 8), end = (byte)(currentMove & 0xff);
+        movePiece(start, end);
+        updateChoice(1, start);
+        updateChoice(2, end);
+        return true;
+    }
 }
