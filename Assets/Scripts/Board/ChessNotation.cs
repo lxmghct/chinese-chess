@@ -9,7 +9,6 @@ namespace Xiangqi
 {
     public class NotationNode
     {
-        #nullable enable
         public NotationNode? Pre = null;
         public List<NotationNode> Next = new List<NotationNode>();
         public List<short> Moves = new List<short>();
@@ -31,19 +30,25 @@ namespace Xiangqi
 
     public partial class ChessNotation
     {
-        public NotationNode Root;
-        public NotationNode Current;
+        public NotationNode Root = new NotationNode();
+        public NotationNode Current = new NotationNode();
         public PgnInfo PgnInfo = new PgnInfo();
 
-        public ChessNotation(NotationNode root)
+        public ChessNotation(Board board)
         {
-            this.Root = root;
-            Current = Root;
+            InitBoard(board);
         }
 
         public ChessNotation(string fen = "")
         {
-            if (fen == "") { fen = Board.INIT_FEN; }
+            if (fen == "")
+            {
+                fen = Board.INIT_FEN;
+            }
+            else
+            {
+                PgnInfo.Info["FEN"] = fen;
+            }
             Root = new NotationNode(new Board(fen));
             Current = Root;
         }
@@ -52,6 +57,11 @@ namespace Xiangqi
         {
             Root = new NotationNode(board);
             Current = Root;
+            string fen = Board.GetFenStringFromBoard(Root.Board);
+            if (fen != Board.INIT_FEN)
+            {
+                PgnInfo.Info["FEN"] = fen;
+            }
         }
 
         private void _addMove(short move, string comment = "")

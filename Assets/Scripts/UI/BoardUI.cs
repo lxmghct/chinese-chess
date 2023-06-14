@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEditor;
 using Xiangqi;
 
 public partial class BoardUI : MonoBehaviour, IPointerClickHandler
@@ -100,7 +101,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         notationGoNext();
     }
 
-    public bool notationGoPre()
+    private bool notationGoPre()
     {
         if (!canOperate || notation.Current.Pre == null) { return false; }
         short currentMove = notation.GetLastMove();
@@ -122,7 +123,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         return true;
     }
 
-    public bool notationGoNext()
+    private bool notationGoNext()
     {
         if (!canOperate || notation.Current.Next.Count == 0) { return false; }
         notation.GoNext();
@@ -133,5 +134,52 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         updateChoice(1, start);
         updateChoice(2, end);
         return true;
+    }
+
+    public void SaveNotation()
+    {
+        // 打开保存对话框
+        
+        string savePath = EditorUtility.SaveFilePanel("Save File", "", "", "pgn");
+
+        if (!string.IsNullOrEmpty(savePath))
+        {
+            Debug.Log("Selected save path: " + savePath);
+            try 
+            {
+                notation.SavePgnFile(savePath);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError(e.Message);
+                UnityEditor.EditorUtility.DisplayDialog("Error", "保存失败", "OK");
+            }
+        }
+
+    }
+
+    public void LoadNotation()
+    {
+        // 打开打开对话框
+        string loadPath = EditorUtility.OpenFilePanel("Open File", "", "pgn");
+
+        if (!string.IsNullOrEmpty(loadPath))
+        {
+            Debug.Log("Selected load path: " + loadPath);
+            try 
+            {
+                notation.LoadPgnFile(loadPath);
+                DrawPieces();
+                for (int i = 0; i < 3; i++)
+                {
+                    updateChoice(i, EMPTY_POSITION);
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError(e.Message);
+                UnityEditor.EditorUtility.DisplayDialog("Error", "导入棋谱失败", "OK");
+            }
+        }
     }
 }
