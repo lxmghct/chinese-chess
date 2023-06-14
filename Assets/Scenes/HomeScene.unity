@@ -630,8 +630,9 @@ GameObject:
   - component: {fileID: 1858932556}
   - component: {fileID: 1858932555}
   - component: {fileID: 1858932554}
+  - component: {fileID: 1858932557}
   m_Layer: 5
-  m_Name: Btn-single-player-mode
+  m_Name: btn-play
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -752,6 +753,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1858932552}
   m_CullTransparentMesh: 1
+--- !u!114 &1858932557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858932552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2487dcd089dd1e44879e15a88c93db3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1917398660
 GameObject:
   m_ObjectHideFlags: 0
@@ -765,7 +778,7 @@ GameObject:
   - component: {fileID: 1917398663}
   - component: {fileID: 1917398662}
   m_Layer: 5
-  m_Name: Btn-online-player-mode
+  m_Name: btn-notation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -971,7 +984,7 @@ GameObject:
   - component: {fileID: 2022359912}
   - component: {fileID: 2022359911}
   m_Layer: 5
-  m_Name: Btn-single-player-mode
+  m_Name: btn-online
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
