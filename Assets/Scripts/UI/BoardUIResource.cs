@@ -32,6 +32,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         LoadPieceSprites();
         LoadPieceBorder();
         LoadChoiceObjects();
+        GlobalConfig.LoadConfig();
     }
     
     public void LoadBoard()

@@ -74,6 +74,7 @@ public class ComputerMove : MonoBehaviour
                 engineInfoText = GameObject.Find("Text-EngineInfo").GetComponent<Text>();
             }
             engineInfoText.text = engineInfo;
+            engineInfoText.color = engineInfoColor;
             engineInfo = "";
         }
     }
@@ -161,8 +162,8 @@ public class ComputerMove : MonoBehaviour
 
     public void UpdateEngineConfig()
     {
-        int hashSize = EngineConfig.HashSize;
-        int threadCount = EngineConfig.ThreadCount;
+        int hashSize = int.Parse(GlobalConfig.Configs["HashSize"]);
+        int threadCount = int.Parse(GlobalConfig.Configs["ThreadCount"]);
         writeToEngine($"setoption name Hash value {hashSize}");
         writeToEngine($"setoption name Threads value {threadCount}");
     }
@@ -189,8 +190,8 @@ public class ComputerMove : MonoBehaviour
             command.Append(" ").Append(MoveUtil.MoveToString(move));
             node = node.Next[node.Choice];
         }
-        int maxDepth = EngineConfig.MaxDepth;
-        int maxTime = EngineConfig.MaxTime;
+        int maxDepth = int.Parse(GlobalConfig.Configs["MaxDepth"]);
+        int maxTime = int.Parse(GlobalConfig.Configs["MaxTime"]);
         try
         {
             writeToEngine(command.ToString());
