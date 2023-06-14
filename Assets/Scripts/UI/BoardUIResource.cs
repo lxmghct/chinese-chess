@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections;
 using Xiangqi;
 using System.Collections.Generic;
 
@@ -216,6 +217,53 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         RectTransform rect = choiceObjects[index].GetComponent<RectTransform>();
         rect.anchoredPosition = new Vector2(coordinate.x, coordinate.y);
         choiceObjects[index].SetActive(true);
+    }
+
+    //平滑移动棋子
+    private IEnumerator SmoothMove(RectTransform chessPiece, byte from, byte to, float duration)
+    {
+        Vector2 start = positionToCoordinate(from);
+        Vector2 end = positionToCoordinate(to);
+    
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+
+            float t = Mathf.Clamp01(elapsedTime / duration); // 计算插值比例
+
+            // 计算当前帧的位置
+            Vector2 currentPosition = Vector2.Lerp(start, end, t);
+
+            // 更新棋子的位置
+            chessPiece.anchoredPosition = currentPosition;
+
+            yield return null; // 等待下一帧
+        }
+
+        // 移动完成后，确保棋子的位置准确到达目标位置
+        chessPiece.anchoredPosition = end;
+        canOperate = true;
+        if (pieceObjects.ContainsKey(to))
+        {
+            Destroy(pieceObjects[to]);
+            pieceObjects.Remove(to);
+        }
+        GameObject pieceObject = pieceObjects[from];
+        pieceObjects.Remove(from);
+        pieceObjects.Add(to, pieceObject);
+    }
+
+    private void movePiece(byte from, byte to)
+    {
+        if (!pieceObjects.ContainsKey(from))
+        {
+            return;
+        }
+        GameObject pieceObject = pieceObjects[from];
+        pieceObject.transform.SetAsLastSibling();
+        StartCoroutine(SmoothMove(pieceObject.GetComponent<RectTransform>(), from, to, 0.3f));
     }
 
 }

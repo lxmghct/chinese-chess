@@ -14,6 +14,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     // 非静态变量
     private ChessNotation notation;
     private byte clickPosition = EMPTY_POSITION;
+    private bool canOperate = true;
     void Start()
     {
         notation = new ChessNotation();
@@ -32,6 +33,10 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (!canOperate)
+        {
+            return;
+        }
         // 先获取当前组件的左上角坐标
         // 将点击位置从屏幕坐标转换为父元素的本地坐标
         RectTransform rectTransform = GetComponent<RectTransform>();
@@ -58,7 +63,8 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         else if (b.CanMovePiece(oldPosition, clickPosition))
         {
             notation.MovePiece((short)(oldPosition << 8 | clickPosition));
-            DrawPieces();
+            movePiece(oldPosition, clickPosition);
+            canOperate = false;
             updateChoice(1, oldPosition);
             updateChoice(2, clickPosition);
             clickPosition = EMPTY_POSITION;
