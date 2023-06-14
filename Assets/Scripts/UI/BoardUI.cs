@@ -85,12 +85,22 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     public void Withdraw()
     {
-        if (!NotationGoPre()) { return; }
+        if (!notationGoPre()) { return; }
         notation.GoNext();
         notation.PopCurrentNode();
     }
 
-    public bool NotationGoPre()
+    public void NotationGoPre()
+    {
+        notationGoPre();
+    }
+
+    public void NotationGoNext()
+    {
+        notationGoNext();
+    }
+
+    public bool notationGoPre()
     {
         if (!canOperate || notation.Current.Pre == null) { return false; }
         short currentMove = notation.GetLastMove();
@@ -112,7 +122,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         return true;
     }
 
-    public bool NotationGoNext()
+    public bool notationGoNext()
     {
         if (!canOperate || notation.Current.Next.Count == 0) { return false; }
         notation.GoNext();
