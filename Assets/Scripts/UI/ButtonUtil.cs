@@ -11,9 +11,15 @@ public class ButtonUtil : MonoBehaviour
     {
 
     }
-    // 点击事件
+    // 点击事件: 切换场景
     public void ChangeScene(string sceneName)
     {
         SceneManager.LoadScene(sceneName);
+    }
+
+    // 点击事件: 退出程序
+    public void Quit()
+    {
+        Application.Quit();
     }
 }
