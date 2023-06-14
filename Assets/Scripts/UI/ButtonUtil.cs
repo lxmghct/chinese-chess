@@ -5,16 +5,15 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class HomeButton : MonoBehaviour
+public class ButtonUtil : MonoBehaviour
 {
     void Start()
     {
 
     }
     // 点击事件
-    public void OnClick()
+    public void ChangeScene(string sceneName)
     {
-        // 跳转到主页
-        SceneManager.LoadScene("PlayScene");
+        SceneManager.LoadScene(sceneName);
     }
 }

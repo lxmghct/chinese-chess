@@ -77,13 +77,20 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     public void GotoNotationIndex(int index)
     {
-        if (index < 0 || index >= notation.Current.GetMoveCount()) { return; }
+        if (index < 0 || index >= notation.GetNotationNodeCount()) { return; }
         notation.GoTo(index);
         short move = notation.GetLastMove();
-        byte start = (byte)(move >> 8), end = (byte)(move & 0xff);
         DrawPieces();
-        updateChoice(1, start);
-        updateChoice(2, end);
+        if (move == 0)
+        {
+            updateChoice(1, EMPTY_POSITION);
+            updateChoice(2, EMPTY_POSITION);
+        }
+        else
+        {
+            updateChoice(1, (byte)(move >> 8));
+            updateChoice(2, (byte)(move & 0xff));
+        }
         updateCommentInput();
     }
 
@@ -206,6 +213,16 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             comment = notation.Current.Board.Comment;
         }
         commentUI.SetComment(comment);
+    }
+
+    public void NotationGoStart()
+    {
+        GotoNotationIndex(0);
+    }
+
+    public void NotationGoEnd()
+    {
+        GotoNotationIndex(notation.GetNotationNodeCount() - 1);
     }
     
 }
