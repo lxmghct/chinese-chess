@@ -260,7 +260,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    private void movePiece(byte from, byte to)
+    private void startMovePieceAnimation(byte from, byte to)
     {
         if (!pieceObjects.ContainsKey(from))
         {

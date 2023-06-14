@@ -17,6 +17,8 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     private byte clickPosition = EMPTY_POSITION;
     private bool canOperate = true;
     private CommentUI commentUI;
+
+    public ChessNotation GetNotation() => notation;
     void Start()
     {
         notation = new ChessNotation();
@@ -70,13 +72,24 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         }
         else if (b.CanMovePiece(oldPosition, clickPosition))
         {
-            notation.MovePiece((short)(oldPosition << 8 | clickPosition));
             movePiece(oldPosition, clickPosition);
-            canOperate = false;
-            clickPosition = EMPTY_POSITION;
-            updateChoiceAndComment();
         }
         updateChoice(0, EMPTY_POSITION);
+    }
+
+    private void movePiece(byte start, byte end)
+    {
+        if (!canOperate) { return; }
+        notation.MovePiece((short)(start << 8 | end));
+        startMovePieceAnimation(start, end);
+        canOperate = false;
+        clickPosition = EMPTY_POSITION;
+        updateChoiceAndComment();
+    }
+
+    public void MovePiece(short move)
+    {
+        movePiece((byte)(move >> 8), (byte)(move & 0xff));
     }
 
     public void GotoNotationIndex(int index)
@@ -126,7 +139,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         notation.GoPre();
         canOperate = false;
         byte start = (byte)(currentMove >> 8), end = (byte)(currentMove & 0xff);
-        movePiece(end, start);
+        startMovePieceAnimation(end, start);
         updateChoiceAndComment();
         return true;
     }
@@ -137,7 +150,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         notation.GoNext();
         canOperate = false;
         short currentMove = notation.GetLastMove();
-        movePiece((byte)(currentMove >> 8), (byte)(currentMove & 0xff));
+        startMovePieceAnimation((byte)(currentMove >> 8), (byte)(currentMove & 0xff));
         updateChoiceAndComment();
         return true;
     }
