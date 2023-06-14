@@ -14,7 +14,7 @@ public class BoardUI : MonoBehaviour
     private static readonly Vector2 boardImageRightBottom = new Vector2(512, 612);
     
     // 非静态变量
-    private RectTransform rectTransform;
+    private GameObject boardObject;
     private float cellWidth;
     private float cellHeight;
     private float pieceSize;
@@ -25,7 +25,6 @@ public class BoardUI : MonoBehaviour
     private ChessNotation notation;
     void Start()
     {
-        rectTransform = GetComponent<RectTransform>();
         notation = new ChessNotation();
         DrawBoard();
         LoadPieceSprites();
@@ -35,20 +34,28 @@ public class BoardUI : MonoBehaviour
 
     public void DrawBoard()
     {
+        RectTransform rectTransform = GetComponent<RectTransform>();
+        boardObject = new GameObject("Borad", typeof(Image));
+        boardObject.transform.SetParent(transform);
+        Image boardImage = boardObject.GetComponent<Image>();
+        boardImage.sprite = LoadSprite(imageRootPath + "board.png");
+        boardImage.type = Image.Type.Sliced;
         // 根据BoardUI的RectTransform的大小，按比例缩放背景图片
         float originWidth = rectTransform.rect.width;
         float originHeight = rectTransform.rect.height;
+        RectTransform boardRect = boardObject.GetComponent<RectTransform>();
         if (originWidth / originHeight > boardImageWidth / boardImageHeight)
         {
-            rectTransform.sizeDelta = new Vector2(originHeight * boardImageWidth / boardImageHeight, originHeight);
+            boardRect.sizeDelta = new Vector2(originHeight / boardImageHeight * boardImageWidth, originHeight);
         }
         else
         {
-            rectTransform.sizeDelta = new Vector2(originWidth, originWidth * boardImageHeight / boardImageWidth);
+            boardRect.sizeDelta = new Vector2(originWidth, originWidth / boardImageWidth * boardImageHeight);
         }
+        boardRect.anchoredPosition = new Vector2(0, 0);
         // 调整格子大小
-        float newWidth = rectTransform.rect.width;
-        float newHeight = rectTransform.rect.height;
+        float newWidth = boardRect.rect.width;
+        float newHeight = boardRect.rect.height;
         cellWidth = (boardImageRightBottom.x - boardImageLeftTop.x) / boardImageWidth * newWidth / (columns - 1);
         cellHeight = (boardImageRightBottom.y - boardImageLeftTop.y) / boardImageHeight * newHeight / (rows - 1);
         pieceSize = cellWidth * 0.9f;
@@ -66,26 +73,6 @@ public class BoardUI : MonoBehaviour
                 DrawPiece(i / 9, i % 9, pieces[i]);
             }
         }
-        // for (int row = 0; row < rows; row++)
-        // {
-        //     for (int col = 0; col < columns; col++)
-        //     {
-        //         GameObject cell = new GameObject("Cell", typeof(Image));
-        //         cell.transform.SetParent(transform);
-
-        //         RectTransform cellRect = cell.GetComponent<RectTransform>();
-        //         cellRect.sizeDelta = new Vector2(pieceSize, pieceSize);
-
-        //         // 设置格子位置
-        //         float posX = leftTop.x + col * cellWidth;
-        //         float posY = leftTop.y + row * cellHeight;
-        //         cellRect.anchoredPosition = new Vector2(posX, posY);
-
-        //         Image cellImage = cell.GetComponent<Image>();
-        //         cellImage.sprite = GetRandomPieceSprite();
-        //         cellImage.type = Image.Type.Sliced;
-        //     }
-        // }
     }
 
     private Sprite LoadSprite(string path)
@@ -150,7 +137,7 @@ public class BoardUI : MonoBehaviour
         float posY = rightBottom.y - row * cellHeight;
         // 先绘制棋子边框
         GameObject borderObject = new GameObject("PieceBorder", typeof(Image));
-        borderObject.transform.SetParent(transform);
+        borderObject.transform.SetParent(boardObject.transform);
         RectTransform borderRect = borderObject.GetComponent<RectTransform>();
         borderRect.sizeDelta = new Vector2(pieceSize, pieceSize);
         borderRect.anchoredPosition = new Vector2(posX, posY);
