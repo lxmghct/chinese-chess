@@ -79,6 +79,12 @@ namespace Xiangqi
             _addMove(move);
         }
 
+        public void MovePiece(short move)
+        {
+            AddMove(move);
+            GoNext();
+        }
+
         public void SetCurrentComment(string comment)
         {
             Current.Board.SetComment(comment);

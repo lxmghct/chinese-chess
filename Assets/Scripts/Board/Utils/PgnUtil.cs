@@ -299,8 +299,7 @@ namespace Xiangqi
             {
                 return -1;
             }
-            notation.AddMove(move);
-            notation.GoNext();
+            notation.MovePiece(move);
             return i;
         }
 
