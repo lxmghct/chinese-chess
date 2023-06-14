@@ -9,18 +9,19 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     // 静态变量
     public static readonly int rows = 10;
     public static readonly int columns = 9;
-
     private static readonly byte EMPTY_POSITION = 255;
 
     // 非静态变量
     private ChessNotation notation;
     private byte clickPosition = EMPTY_POSITION;
     private bool canOperate = true;
+    private CommentUI commentUI;
     void Start()
     {
         notation = new ChessNotation();
         LoadResources();
         DrawPieces();
+        commentUI = GameObject.Find("Img-Comment").GetComponent<CommentUI>();
     }
 
     public void DrawPieces()
@@ -69,6 +70,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             updateChoice(1, oldPosition);
             updateChoice(2, clickPosition);
             clickPosition = EMPTY_POSITION;
+            updateCommentInput();
         }
         updateChoice(0, EMPTY_POSITION);
     }
@@ -82,6 +84,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         DrawPieces();
         updateChoice(1, start);
         updateChoice(2, end);
+        updateCommentInput();
     }
 
     public void Withdraw()
@@ -120,6 +123,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             updateChoice(1, (byte)(currentMove >> 8));
             updateChoice(2, (byte)(currentMove & 0xff));
         }
+        updateCommentInput();
         return true;
     }
 
@@ -133,6 +137,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         movePiece(start, end);
         updateChoice(1, start);
         updateChoice(2, end);
+        updateCommentInput();
         return true;
     }
 
@@ -156,6 +161,8 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             }
         }
 
+        GameObject.Find("Img-Menu").SetActive(false);
+
     }
 
     public void LoadNotation()
@@ -169,11 +176,13 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             try 
             {
                 notation.LoadPgnFile(loadPath);
+                notation.GoTo(0);
                 DrawPieces();
                 for (int i = 0; i < 3; i++)
                 {
                     updateChoice(i, EMPTY_POSITION);
                 }
+                updateCommentInput();
             }
             catch (System.Exception e)
             {
@@ -181,5 +190,22 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
                 UnityEditor.EditorUtility.DisplayDialog("Error", "导入棋谱失败", "OK");
             }
         }
+        GameObject.Find("Img-Menu").SetActive(false);
     }
+
+    public void SetComment(string comment)
+    {
+        notation.Current.Board.Comment = comment;
+    }
+
+    #nullable enable
+    private void updateCommentInput(string? comment = null)
+    {
+        if (comment == null)
+        {
+            comment = notation.Current.Board.Comment;
+        }
+        commentUI.SetComment(comment);
+    }
+    
 }

@@ -9,6 +9,8 @@ namespace Xiangqi
 {
     public class NotationNode
     {
+        
+        #nullable enable
         public NotationNode? Pre = null;
         public List<NotationNode> Next = new List<NotationNode>();
         public List<short> Moves = new List<short>();
@@ -118,7 +120,8 @@ namespace Xiangqi
                 }
             }
         }
-
+        
+        #nullable enable
         public NotationNode? GetByIndex(int index)
         {
             if (index < 0) { return null; }
