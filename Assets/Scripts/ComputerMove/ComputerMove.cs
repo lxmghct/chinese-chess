@@ -49,7 +49,6 @@ public class ComputerMove : MonoBehaviour
             try
             {
                 float score = float.Parse(boardScore);
-                UnityEngine.Debug.Log("Score: " + score);
                 if (score >= 0)
                 {
                     engineScoreText.text = "红优: " + score + "分";
@@ -182,7 +181,15 @@ public class ComputerMove : MonoBehaviour
             node = node.Pre;
         }
         StringBuilder command = new StringBuilder();
-        command.Append("position fen ").Append(Board.GetFenStringFromBoard(node.Board)).Append(" moves");
+        string fen = Board.GetFenStringFromBoard(node.Board);
+        if (node == notation.Current && fen == Board.INIT_FEN)
+        {
+            // 初始局面随机走法
+            int index = UnityEngine.Random.Range(0, Board.INIT_MOVES.Length);
+            bestmove = MoveUtil.StringToMove(Board.INIT_MOVES[index]);
+            return;
+        }
+        command.Append("position fen ").Append(fen).Append(" moves");
         while (node != notation.Current)
         {
             if (node.Next.Count == 0) { break; }

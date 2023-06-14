@@ -13,6 +13,7 @@ namespace Xiangqi
         public static int MAX_NO_CAP_ROUND = 60;
         // 初始局面FEN
         public static readonly string INIT_FEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1";
+        public static readonly string[] INIT_MOVES = new string[] { "h2d2", "h2e2", "h2f2", "b2d2", "b2e2", "b2f2", "g0e2", "c0e2", "c3c4", "g3g4", "b0c2", "h0g2" };
 
         public static Board GetBoardFromFenString(string fen)
         {
