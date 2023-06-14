@@ -1,15 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using Xiangqi;
 
-public class BoardUI : MonoBehaviour
+public class BoardUI : MonoBehaviour, IPointerClickHandler
 {
     // 静态变量
     public static readonly int rows = 10;
     public static readonly int columns = 9;
     public static string imageRootPath = "Assets/Resources/Images/Board/";
-    private static readonly int boardImageWidth = 554;
-    private static readonly int boardImageHeight = 694;
+    private static readonly float boardImageWidth = 554;
+    private static readonly float boardImageHeight = 694;
     private static readonly Vector2 boardImageLeftTop = new Vector2(41, 85);
     private static readonly Vector2 boardImageRightBottom = new Vector2(512, 612);
     
@@ -18,8 +19,8 @@ public class BoardUI : MonoBehaviour
     private float cellWidth;
     private float cellHeight;
     private float pieceSize;
-    private Vector2 leftTop;
-    private Vector2 rightBottom;
+    private Vector2 leftBottom;
+    private Vector2 rightTop;
     private Sprite[] pieceSprites;
     private Sprite[] pieceBorders;
     private ChessNotation notation;
@@ -59,8 +60,8 @@ public class BoardUI : MonoBehaviour
         cellWidth = (boardImageRightBottom.x - boardImageLeftTop.x) / boardImageWidth * newWidth / (columns - 1);
         cellHeight = (boardImageRightBottom.y - boardImageLeftTop.y) / boardImageHeight * newHeight / (rows - 1);
         pieceSize = cellWidth * 0.9f;
-        leftTop = new Vector2(-newWidth / 2 + boardImageLeftTop.x / boardImageWidth * newWidth, -newHeight / 2 + (boardImageHeight - boardImageRightBottom.y) / boardImageHeight * newHeight);
-        rightBottom = new Vector2(leftTop.x + (columns - 1) * cellWidth, leftTop.y + (rows - 1) * cellHeight);
+        leftBottom = new Vector2(-newWidth / 2 + boardImageLeftTop.x / boardImageWidth * newWidth, -newHeight / 2 + (boardImageHeight - boardImageRightBottom.y) / boardImageHeight * newHeight);
+        rightTop = new Vector2(leftBottom.x + (columns - 1) * cellWidth, leftBottom.y + (rows - 1) * cellHeight);
     }
 
     public void DrawPieces()
@@ -133,8 +134,8 @@ public class BoardUI : MonoBehaviour
     private void DrawPiece(int row, int col, byte piece)
     {
         // 设置棋子位置
-        float posX = leftTop.x + col * cellWidth;
-        float posY = rightBottom.y - row * cellHeight;
+        float posX = leftBottom.x + col * cellWidth;
+        float posY = rightTop.y - row * cellHeight;
         // 先绘制棋子边框
         GameObject borderObject = new GameObject("PieceBorder", typeof(Image));
         borderObject.transform.SetParent(boardObject.transform);
@@ -163,5 +164,30 @@ public class BoardUI : MonoBehaviour
     {
         int randomIndex = Random.Range(0, 14);
         return pieceSprites[randomIndex];
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        // 先获取当前组件的左上角坐标
+        // 将点击位置从屏幕坐标转换为父元素的本地坐标
+        RectTransform rectTransform = GetComponent<RectTransform>();
+        Vector2 localPosition;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, eventData.position, eventData.pressEventCamera, out localPosition);
+        // 处理棋盘点击事件的逻辑
+        float x = localPosition.x;
+        float y = localPosition.y;
+        int row = Mathf.RoundToInt((rightTop.y - y) / cellHeight);
+        int col = Mathf.RoundToInt((x - leftBottom.x) / cellWidth);
+        if (row < 0 || row >= rows || col < 0 || col >= columns)
+        {
+            return;
+        }
+        float x1 = leftBottom.x + col * cellWidth;
+        float y1 = rightTop.y - row * cellHeight;
+        if (Mathf.Abs(x - x1) > pieceSize / 2 || Mathf.Abs(y - y1) > pieceSize / 2)
+        {
+            return;
+        }
+        Debug.Log("Clicked on row: " + row + ", col: " + col + ", x: " + x + ", y: " + y + ", x1: " + x1 + ", y1: " + y1);
     }
 }
