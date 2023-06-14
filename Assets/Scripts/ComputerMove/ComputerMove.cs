@@ -3,6 +3,7 @@
 /// </summary>
 
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 using System.Threading;
 using System.Diagnostics;
@@ -20,6 +21,11 @@ public class ComputerMove : MonoBehaviour
 
     private BoardUI boardObject;
     private short bestmove = 0;
+    private string boardScore = "";
+    private string engineInfo = "";
+    private Color engineInfoColor = Color.black;
+    private Text engineScoreText;
+    private Text engineInfoText;
 
     void Start()
     {
@@ -32,6 +38,43 @@ public class ComputerMove : MonoBehaviour
         {
             boardObject.MovePiece(bestmove);
             bestmove = 0;
+            engineInfo = " ";
+        }
+        if (boardScore != "")
+        {
+            if (engineScoreText == null)
+            {
+                engineScoreText = GameObject.Find("Text-EngineScore").GetComponent<Text>();
+            }
+            try
+            {
+                float score = float.Parse(boardScore);
+                UnityEngine.Debug.Log("Score: " + score);
+                if (score >= 0)
+                {
+                    engineScoreText.text = "红优: " + score + "分";
+                    engineScoreText.color = Color.red;
+                }
+                else
+                {
+                    engineScoreText.text = "黑优: " + (-score) + "分";
+                    engineScoreText.color = Color.black;
+                }
+            }
+            catch (Exception)
+            {
+                UnityEngine.Debug.Log("Invalid score: " + boardScore);
+            }
+            boardScore = "";
+        }
+        if (engineInfo != "")
+        {
+            if (engineInfoText == null)
+            {
+                engineInfoText = GameObject.Find("Text-EngineInfo").GetComponent<Text>();
+            }
+            engineInfoText.text = engineInfo;
+            engineInfo = "";
         }
     }
 
@@ -92,8 +135,7 @@ public class ComputerMove : MonoBehaviour
                 while (output[++index] == ' ') { }
                 int start = index;
                 while (output[++index] != ' ') { }
-                string score = output.Substring(start, index - start);
-                UnityEngine.Debug.Log(score);
+                boardScore = output.Substring(start, index - start);
             }
             else if (output.StartsWith("bestmove"))
             {
@@ -154,16 +196,26 @@ public class ComputerMove : MonoBehaviour
             writeToEngine(command.ToString());
             waitingForMove = true;
             writeToEngine($"go depth {maxDepth} movetime {maxTime}");
+            engineInfo = "电脑思考中...";
+            engineInfoColor = node.Board.Side == SIDE.Red ? Color.red : Color.black;
         }
         catch (Exception)
         {
             UnityEngine.Debug.Log("Engine process has been closed");
+            engineInfo = "引擎加载失败";
+            engineInfoColor = Color.red;
             runEngine();
         }
     }
 
     public void Evaluate()
     {
+        if (boardObject == null)
+        {
+            boardObject = GameObject.Find("Img-Board").GetComponent<BoardUI>();
+        }
+        Board b = boardObject.GetNotation().Current.Board;
+        writeToEngine($"position fen {Board.GetFenStringFromBoard(b)}");
         writeToEngine("eval");
     }
 

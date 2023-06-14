@@ -17,6 +17,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     private byte clickPosition = EMPTY_POSITION;
     private bool canOperate = true;
     private CommentUI commentUI;
+    private ComputerMove engine;
 
     public ChessNotation GetNotation() => notation;
     void Start()
@@ -25,6 +26,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         LoadResources();
         DrawPieces();
         commentUI = GameObject.Find("Img-Comment").GetComponent<CommentUI>();
+        updateChoiceAndComment();
     }
 
     public void DrawPieces()
@@ -170,6 +172,11 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         }
         updateChoice(0, EMPTY_POSITION);
         updateCommentInput();
+        if (engine == null)
+        {
+            engine = GameObject.Find("Btn-Computer").GetComponent<ComputerMove>();
+        }
+        engine.Evaluate();
     }
 
     public void SaveNotation()
