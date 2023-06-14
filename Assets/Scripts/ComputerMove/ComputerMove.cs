@@ -27,6 +27,9 @@ public class ComputerMove : MonoBehaviour
     private Text engineScoreText;
     private Text engineInfoText;
 
+    private int hashSize = 16;
+    private int threadCount = 1;
+
     void Start()
     {
         runEngine();
@@ -45,6 +48,11 @@ public class ComputerMove : MonoBehaviour
             if (engineScoreText == null)
             {
                 engineScoreText = GameObject.Find("Text-EngineScore").GetComponent<Text>();
+            }
+            if (GlobalConfig.Configs["ShowScore"] == "false")
+            {
+                engineScoreText.text = "";
+                return;
             }
             try
             {
@@ -161,14 +169,22 @@ public class ComputerMove : MonoBehaviour
 
     public void UpdateEngineConfig()
     {
-        int hashSize = int.Parse(GlobalConfig.Configs["HashSize"]);
-        int threadCount = int.Parse(GlobalConfig.Configs["ThreadCount"]);
-        writeToEngine($"setoption name Hash value {hashSize}");
-        writeToEngine($"setoption name Threads value {threadCount}");
+        int oldHashSize = hashSize, oldThreadCount = threadCount;
+        hashSize = int.Parse(GlobalConfig.Configs["HashSize"]);
+        threadCount = int.Parse(GlobalConfig.Configs["ThreadCount"]);
+        if (hashSize != oldHashSize)
+        {
+            writeToEngine($"setoption name Hash value {hashSize}");
+        }
+        if (threadCount != oldThreadCount)
+        {
+            writeToEngine($"setoption name Threads value {threadCount}");
+        }
     }
 
     public void Think()
     {
+        UpdateEngineConfig();
         if (boardObject == null)
         {
             boardObject = GameObject.Find("Img-Board").GetComponent<BoardUI>();
@@ -218,6 +234,7 @@ public class ComputerMove : MonoBehaviour
 
     public void Evaluate()
     {
+        UpdateEngineConfig();
         if (boardObject == null)
         {
             boardObject = GameObject.Find("Img-Board").GetComponent<BoardUI>();

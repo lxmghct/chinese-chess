@@ -15,6 +15,7 @@ public class GlobalConfig
         {"MaxTime", "2000"},
         {"ThreadCount", "1"},
         {"IsBoardReverse", "false"},
+        {"ShowScore", "true"}
     };
 
     public static Dictionary<string, string> DefaultConfigs = new Dictionary<string, string>()
@@ -24,6 +25,7 @@ public class GlobalConfig
         {"MaxTime", "2000"},
         {"ThreadCount", "1"},
         {"IsBoardReverse", "false"},
+        {"ShowScore", "true"}
     };
 
     public static void LoadConfig()

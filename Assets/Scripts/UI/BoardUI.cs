@@ -24,6 +24,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     {
         notation = new ChessNotation();
         LoadResources();
+        isReverseBoard = GlobalConfig.Configs["IsBoardReverse"] == "true";
         DrawPieces();
         commentUI = GameObject.Find("Img-Comment").GetComponent<CommentUI>();
         updateChoiceAndComment();
@@ -176,7 +177,10 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         {
             engine = GameObject.Find("Btn-Computer").GetComponent<ComputerMove>();
         }
-        engine.Evaluate();
+        if (GlobalConfig.Configs["ShowScore"] != "false")
+        {
+            engine.Evaluate();
+        }
     }
 
     public void SaveNotation()
@@ -257,6 +261,8 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         isReverseBoard = !isReverseBoard;
         DrawPieces();
         updateChoiceAndComment();
+        GlobalConfig.Configs["IsBoardReverse"] = isReverseBoard ? "true" : "false";
+        GlobalConfig.SaveConfig();
     }
     
 }
