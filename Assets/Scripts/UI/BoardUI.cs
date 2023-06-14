@@ -12,6 +12,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     private static readonly byte EMPTY_POSITION = 255;
 
     // 非静态变量
+    public bool isReverseBoard = false; // 是否翻转棋盘
     private ChessNotation notation;
     private byte clickPosition = EMPTY_POSITION;
     private bool canOperate = true;
@@ -47,10 +48,15 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         // 处理棋盘点击事件的逻辑
         byte oldPosition = clickPosition;
         clickPosition = coordinateToPosition(localPosition.x, localPosition.y);
+        
         if (clickPosition > 89)
         {
             updateChoice(0, EMPTY_POSITION);
             return;
+        }
+        if (isReverseBoard)
+        {
+            clickPosition = (byte)(89 - clickPosition);
         }
         Board b = notation.Current.Board;
         if (oldPosition > 89 || b.Pieces[oldPosition] == PIECE.Empty)
@@ -67,10 +73,8 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             notation.MovePiece((short)(oldPosition << 8 | clickPosition));
             movePiece(oldPosition, clickPosition);
             canOperate = false;
-            updateChoice(1, oldPosition);
-            updateChoice(2, clickPosition);
             clickPosition = EMPTY_POSITION;
-            updateCommentInput();
+            updateChoiceAndComment();
         }
         updateChoice(0, EMPTY_POSITION);
     }
@@ -79,19 +83,8 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     {
         if (index < 0 || index >= notation.GetNotationNodeCount()) { return; }
         notation.GoTo(index);
-        short move = notation.GetLastMove();
         DrawPieces();
-        if (move == 0)
-        {
-            updateChoice(1, EMPTY_POSITION);
-            updateChoice(2, EMPTY_POSITION);
-        }
-        else
-        {
-            updateChoice(1, (byte)(move >> 8));
-            updateChoice(2, (byte)(move & 0xff));
-        }
-        updateCommentInput();
+        updateChoiceAndComment();
     }
 
     public void Withdraw()
@@ -134,7 +127,24 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         canOperate = false;
         byte start = (byte)(currentMove >> 8), end = (byte)(currentMove & 0xff);
         movePiece(end, start);
-        currentMove = notation.GetLastMove();
+        updateChoiceAndComment();
+        return true;
+    }
+
+    private bool notationGoNext()
+    {
+        if (!canOperate || notation.Current.Next.Count == 0) { return false; }
+        notation.GoNext();
+        canOperate = false;
+        short currentMove = notation.GetLastMove();
+        movePiece((byte)(currentMove >> 8), (byte)(currentMove & 0xff));
+        updateChoiceAndComment();
+        return true;
+    }
+
+    private void updateChoiceAndComment()
+    {
+        short currentMove = notation.GetLastMove();
         if (currentMove == 0)
         {
             updateChoice(1, EMPTY_POSITION);
@@ -145,22 +155,8 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             updateChoice(1, (byte)(currentMove >> 8));
             updateChoice(2, (byte)(currentMove & 0xff));
         }
+        updateChoice(0, EMPTY_POSITION);
         updateCommentInput();
-        return true;
-    }
-
-    private bool notationGoNext()
-    {
-        if (!canOperate || notation.Current.Next.Count == 0) { return false; }
-        notation.GoNext();
-        short currentMove = notation.GetLastMove();
-        canOperate = false;
-        byte start = (byte)(currentMove >> 8), end = (byte)(currentMove & 0xff);
-        movePiece(start, end);
-        updateChoice(1, start);
-        updateChoice(2, end);
-        updateCommentInput();
-        return true;
     }
 
     public void SaveNotation()
@@ -200,11 +196,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
                 notation.LoadPgnFile(loadPath);
                 notation.GoTo(0);
                 DrawPieces();
-                for (int i = 0; i < 3; i++)
-                {
-                    updateChoice(i, EMPTY_POSITION);
-                }
-                updateCommentInput();
+                updateChoiceAndComment();
             }
             catch (System.Exception e)
             {
@@ -238,6 +230,13 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     public void NotationGoEnd()
     {
         GotoNotationIndex(notation.GetNotationNodeCount() - 1);
+    }
+
+    public void ChangeBoardReverse()
+    {
+        isReverseBoard = !isReverseBoard;
+        DrawPieces();
+        updateChoiceAndComment();
     }
     
 }

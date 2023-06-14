@@ -161,6 +161,10 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     private Vector2 positionToCoordinate(byte position)
     {
+        if (isReverseBoard)
+        {
+            position = (byte)(89 - position);
+        }
         int row = position / 9;
         int col = position % 9;
         float x = leftBottom.x + col * cellWidth;
