@@ -9,7 +9,7 @@ using System.IO;
 public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 {
     // 静态变量
-        public static string imageRootPath = "Assets/Resources/Images/Board/";
+    public static string imageRootPath = "Assets/Resources/Images/Board/";
     private static readonly float boardImageWidth = 554;
     private static readonly float boardImageHeight = 694;
     private static readonly Vector2 boardImageLeftTop = new Vector2(41, 85);
