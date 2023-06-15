@@ -90,6 +90,19 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         updateChoiceAndComment();
     }
 
+    private void judgeResult()
+    {
+        if (notation.Current.Board.IsCurrentSideLose())
+        {
+            string result = notation.Current.Board.Side == SIDE.Red ? "黑胜" : "红胜";
+            UnityEditor.EditorUtility.DisplayDialog("游戏结束", result, "OK");
+        }
+        else if (notation.Current.Board.IsDraw())
+        {
+            UnityEditor.EditorUtility.DisplayDialog("游戏结束", "和棋", "OK");
+        }
+    }
+
     public void MovePiece(short move)
     {
         movePiece((byte)(move >> 8), (byte)(move & 0xff));

@@ -259,6 +259,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             Destroy(pieceObjects[from]);
             pieceObjects.Remove(from);
         }
+        judgeResult();
     }
 
     private void startMovePieceAnimation(byte from, byte to)
