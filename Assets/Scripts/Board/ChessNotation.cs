@@ -206,6 +206,11 @@ namespace Xiangqi
         {
             PgnUtil.LoadPgnFile(path, this);
         }
+        
+        public void LoadPgnDataString(string pgn)
+        {
+            PgnUtil.LoadPgn(pgn, this);
+        }
 
         public void SavePgnFile(string path, bool saveVariations = true)
         {

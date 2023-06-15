@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
 using UnityEngine.EventSystems;
-using UnityEditor;
 using Xiangqi;
+using Keiwando.NFSO;
 
 public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 {
@@ -18,6 +19,13 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     private bool canOperate = true;
     private CommentUI commentUI;
     private ComputerMove engine;
+    private SupportedFileType pgnFileType = new SupportedFileType() {
+		Name = "Portable Game Notation",
+		Extension = "pgn",
+		Owner = false,
+		AppleUTI = "public.data|public.content",
+		MimeType = "*/*"
+    };
 
     public ChessNotation GetNotation() => notation;
     void Start()
@@ -207,24 +215,28 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     public void SaveNotation()
     {
+        string path = "fileToSave.pgn";
+        try 
+        {
+            notation.SavePgnFile(path);
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e);
+            openMessageBox("Error", "保存棋谱失败");
+        }
         // 打开保存对话框
         
-        string savePath = EditorUtility.SaveFilePanel("Save File", "", "", "pgn");
+        string newFilename = "新建棋谱.pgn";
 
-        if (!string.IsNullOrEmpty(savePath))
-        {
-            Debug.Log("Selected save path: " + savePath);
-            try 
-            {
-                notation.SavePgnFile(savePath);
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError(e.Message);
-                openMessageBox("Error", "保存棋谱失败");
-            }
-        }
+        FileToSave file = new FileToSave(path, newFilename, pgnFileType);
 
+        // Allows the user to choose a save location and saves the 
+        // file to that location
+        NativeFileSO.shared.SaveFile(file);
+        
+        File.Delete(path);
+        
         GameObject.Find("Img-Menu").SetActive(false);
 
     }
@@ -232,24 +244,27 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     public void LoadNotation()
     {
         // 打开打开对话框
-        string loadPath = EditorUtility.OpenFilePanel("Open File", "", "pgn");
 
-        if (!string.IsNullOrEmpty(loadPath))
-        {
-            Debug.Log("Selected load path: " + loadPath);
-            try 
-            {
-                notation.LoadPgnFile(loadPath);
-                notation.GoTo(0);
-                DrawPieces();
-                updateChoiceAndComment();
+        NativeFileSO.shared.OpenFile(new SupportedFileType[] { pgnFileType },
+            delegate (bool fileWasOpened, OpenedFile file) {
+                if (fileWasOpened) {
+                    // Process the loaded contents of "file"
+                    try
+                    {
+                        notation.LoadPgnDataString(file.ToUTF8String());
+                        notation.GoTo(0);
+                        DrawPieces();
+                        updateChoiceAndComment();
+                    }
+                    catch
+                    {
+                        openMessageBox("Error", "导入棋谱失败");
+                    }
+                } else {
+                    // The file selection was cancelled.	
+                }
             }
-            catch (System.Exception e)
-            {
-                Debug.LogError(e.Message);
-                openMessageBox("Error", "导入棋谱失败");
-            }
-        }
+        );
         GameObject.Find("Img-Menu").SetActive(false);
     }
 
