@@ -95,11 +95,11 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         if (notation.Current.Board.IsCurrentSideLose())
         {
             string result = notation.Current.Board.Side == SIDE.Red ? "黑胜" : "红胜";
-            UnityEditor.EditorUtility.DisplayDialog("游戏结束", result, "OK");
+            EditorUtility.DisplayDialog("游戏结束", result, "OK");
         }
         else if (notation.Current.Board.IsDraw())
         {
-            UnityEditor.EditorUtility.DisplayDialog("游戏结束", "和棋", "OK");
+            EditorUtility.DisplayDialog("游戏结束", "和棋", "OK");
         }
     }
 
@@ -212,7 +212,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             catch (System.Exception e)
             {
                 Debug.LogError(e.Message);
-                UnityEditor.EditorUtility.DisplayDialog("Error", "保存失败", "OK");
+                EditorUtility.DisplayDialog("Error", "保存失败", "OK");
             }
         }
 
@@ -238,7 +238,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             catch (System.Exception e)
             {
                 Debug.LogError(e.Message);
-                UnityEditor.EditorUtility.DisplayDialog("Error", "导入棋谱失败", "OK");
+                EditorUtility.DisplayDialog("Error", "导入棋谱失败", "OK");
             }
         }
         GameObject.Find("Img-Menu").SetActive(false);
