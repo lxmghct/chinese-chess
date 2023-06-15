@@ -12,7 +12,13 @@ using Xiangqi;
 
 public class ComputerMove : MonoBehaviour
 {
+    #if UNITY_ANDROID
     private static string enginePath = "Assets/Resources/Engine/Pikafish";
+    #elif UNITY_STANDALONE_WIN
+    private static string enginePath = "Assets/Resources/Engine/Pikafish.exe";
+    #else
+    private static string enginePath = "";
+    #endif
 
     private Process engineProcess;
     private Thread outputThread;
