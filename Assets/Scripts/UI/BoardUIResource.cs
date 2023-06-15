@@ -4,11 +4,12 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using Xiangqi;
 using System.Collections.Generic;
+using System.IO;
 
 public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 {
     // 静态变量
-    public static string imageRootPath = "Assets/Resources/Images/Board/";
+        public static string imageRootPath = "Assets/Resources/Images/Board/";
     private static readonly float boardImageWidth = 554;
     private static readonly float boardImageHeight = 694;
     private static readonly Vector2 boardImageLeftTop = new Vector2(41, 85);
@@ -65,10 +66,24 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         leftBottom = new Vector2(-newWidth / 2 + boardImageLeftTop.x / boardImageWidth * newWidth, -newHeight / 2 + (boardImageHeight - boardImageRightBottom.y) / boardImageHeight * newHeight);
         rightTop = new Vector2(leftBottom.x + (columns - 1) * cellWidth, leftBottom.y + (rows - 1) * cellHeight);
     }
+
+    private Texture2D LoadTexture2D(string path)
+    {
+        FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+        fileStream.Seek(0, SeekOrigin.Begin);
+        byte[] bye = new byte[fileStream.Length];
+        fileStream.Read(bye, 0, bye.Length);
+        fileStream.Close();
+        fileStream.Dispose();
+        Texture2D texture = new Texture2D(0, 0);
+        texture.LoadImage(bye);
+        return texture;
+    }
     
     private Sprite LoadSprite(string path)
     {
-        Texture2D texture = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        // Texture2D texture = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        Texture2D texture = LoadTexture2D(path);
         if (texture == null)
         {
             Debug.LogError("Failed to load sprite at path: " + path);
@@ -81,7 +96,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     private void LoadPieceSprites()
     {
-        Texture2D texture = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(imageRootPath + "pieces.png");
+        Texture2D texture = LoadTexture2D(imageRootPath + "pieces.png");
         if (texture == null)
         {
             Debug.LogError("Failed to load texture at path: " + imageRootPath + "pieces.png");
@@ -104,7 +119,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     private void LoadPieceBorder()
     {
-        Texture2D texture = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(imageRootPath + "PieceBorder.png");
+        Texture2D texture = LoadTexture2D(imageRootPath + "PieceBorder.png");
         if (texture == null)
         {
             Debug.LogError("Failed to load texture at path: " + imageRootPath + "PieceBorder.png");
