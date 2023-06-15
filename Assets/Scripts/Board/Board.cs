@@ -96,7 +96,14 @@ namespace Xiangqi
             {
                 return false;
             }
-            return MoveUtil.CanMovePiece(start, end, Pieces);
+            bool flag = MoveUtil.CanMovePiece(start, end, Pieces);
+            if (flag)
+            {
+                Board b = new Board(this);
+                b.MovePiece(start, end);
+                flag = !b.IsChecked(Side);
+            }
+            return flag;
         }
 
         public bool CanMovePiece(short move, bool checkPosition = true)

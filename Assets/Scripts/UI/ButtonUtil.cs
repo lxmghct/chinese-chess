@@ -26,6 +26,15 @@ public class ButtonUtil : MonoBehaviour
     // 点击事件: 功能待完善
     public void NotImplementedInfo()
     {
-        UnityEditor.EditorUtility.DisplayDialog("提示", "功能待完善", "确定");
+        OpenMessageBox("提示", "功能待完善");
+    }
+
+    public void OpenMessageBox(string title, string message)
+    {
+        MessageBox messageBox = GameObject.Find("Canvas").transform.Find("Img-MessageBox").GetComponent<MessageBox>();
+        if (messageBox != null)
+        {
+            messageBox.ShowMessage(title, message); 
+        }
     }
 }
