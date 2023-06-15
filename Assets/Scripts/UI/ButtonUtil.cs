@@ -22,4 +22,10 @@ public class ButtonUtil : MonoBehaviour
     {
         Application.Quit();
     }
+
+    // 点击事件: 功能待完善
+    public void NotImplementedInfo()
+    {
+        UnityEditor.EditorUtility.DisplayDialog("提示", "功能待完善", "确定");
+    }
 }
