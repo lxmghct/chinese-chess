@@ -75,3 +75,9 @@ crashlytics-build.properties
 # Windows files
 Thumbs.db
 Desktop.ini
+
+# engine
+Engine/
+Engine.meta
+Engines/
+Engines.meta

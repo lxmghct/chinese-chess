@@ -9,6 +9,8 @@ using System.Threading;
 using System.Diagnostics;
 using System.Text;
 using Xiangqi;
+using System.Runtime.InteropServices;
+using Debug = UnityEngine.Debug;
 
 public class ComputerMove : MonoBehaviour
 {
@@ -35,6 +37,7 @@ public class ComputerMove : MonoBehaviour
 
     private int hashSize = 16;
     private int threadCount = 1;
+    private bool isEngineLoaded = false;
 
     void Start()
     {
@@ -76,7 +79,7 @@ public class ComputerMove : MonoBehaviour
             }
             catch (Exception)
             {
-                UnityEngine.Debug.Log("Invalid score: " + boardScore);
+                Debug.Log("Invalid score: " + boardScore);
             }
             boardScore = "";
         }
@@ -100,7 +103,7 @@ public class ComputerMove : MonoBehaviour
         }
         catch (Exception)
         {
-            UnityEngine.Debug.Log("Engine process has been closed");
+            Debug.Log("Engine process has been closed");
         }
     }
 
@@ -120,13 +123,24 @@ public class ComputerMove : MonoBehaviour
         engineProcess.StartInfo.CreateNoWindow = true;
         // 启动进程
         engineProcess.Start();
-        // 启动线程接收引擎输出
         if (outputThread != null)
         {
             outputThread.Abort();
         }
         outputThread = new Thread(receiveEngineOutput);
         outputThread.Start(engineProcess);
+        // 检查引擎是否正常启动
+        try
+        {
+            writeToEngine("uci");
+            isEngineLoaded = true;
+        }
+        catch(Exception e)
+        {
+            Debug.Log(e);
+            isEngineLoaded = false;
+        }
+
     }
 
     #nullable enable
@@ -190,6 +204,13 @@ public class ComputerMove : MonoBehaviour
 
     public void Think()
     {
+        if (!isEngineLoaded)
+        {
+            engineInfo = "引擎加载失败";
+            engineInfoColor = Color.red;
+            runEngine();
+            return;
+        }
         UpdateEngineConfig();
         if (boardObject == null)
         {
@@ -231,7 +252,6 @@ public class ComputerMove : MonoBehaviour
         }
         catch (Exception)
         {
-            UnityEngine.Debug.Log("Engine process has been closed");
             engineInfo = "引擎加载失败";
             engineInfoColor = Color.red;
             runEngine();

@@ -9,7 +9,7 @@ using System.IO;
 public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 {
     // 静态变量
-    public static string imageRootPath = "Assets/Resources/Images/Board/";
+    public static string imageRootPath = "Images/Board/";
     private static readonly float boardImageWidth = 554;
     private static readonly float boardImageHeight = 694;
     private static readonly Vector2 boardImageLeftTop = new Vector2(41, 85);
@@ -69,14 +69,13 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     private Texture2D LoadTexture2D(string path)
     {
-        FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-        fileStream.Seek(0, SeekOrigin.Begin);
-        byte[] bye = new byte[fileStream.Length];
-        fileStream.Read(bye, 0, bye.Length);
-        fileStream.Close();
-        fileStream.Dispose();
-        Texture2D texture = new Texture2D(0, 0);
-        texture.LoadImage(bye);
+        // 去除后缀
+        int index = path.LastIndexOf('.');
+        if (index != -1 && path.IndexOf('/', index) == -1)
+        {
+            path = path.Substring(0, index);
+        }
+        Texture2D texture = Resources.Load<Texture2D>(path);
         return texture;
     }
     
