@@ -111,9 +111,9 @@ public class ComputerMove : MonoBehaviour
     #elif UNITY_STANDALONE_WIN
     [DllImport("Assets/Plugins/Engine/pikafish.dll")]
     #elif UNITY_ANDROID
-    [DllImport("Assets/Plugins/Engine/libpikafish.so")]
+    [DllImport("pikafish")]
     #else
-    [DllImport("Assets/Plugins/Engine/libpikafish.so")]
+    [DllImport("pikafish")]
     #endif
     public static extern void RunEngine(ReadOutputDelegate callback);
 
@@ -122,9 +122,9 @@ public class ComputerMove : MonoBehaviour
     #elif UNITY_STANDALONE_WIN
     [DllImport("Assets/Plugins/Engine/pikafish.dll")]
     #elif UNITY_ANDROID
-    [DllImport("Assets/Plugins/Engine/libpikafish.so")]
+    [DllImport("pikafish")]
     #else
-    [DllImport("Assets/Plugins/Engine/libpikafish.so")]
+    [DllImport("pikafish")]
     #endif
     public static extern void WriteCommand(string command);
 
@@ -138,7 +138,7 @@ public class ComputerMove : MonoBehaviour
     private static void runEngineThread()
     {
         RunEngine(readOutputFromEngine);
-        WriteCommand($"setoption name EvalFile value Assets/Plugins/Engine/pikafish.nnue");
+        WriteCommand($"setoption name EvalFile value Assets/Plugins/Android/pikafish.nnue");
         engineLoaded = true;
     }
 
