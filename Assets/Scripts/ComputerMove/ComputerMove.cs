@@ -13,7 +13,7 @@ using System.IO;
 public class ComputerMove : MonoBehaviour
 {
     private bool waitingForMove = false;
-    private static bool engineLoaded = false;
+    private bool engineLoaded = false;
 
     private BoardUI boardObject;
     private short bestmove = 0;
@@ -102,6 +102,7 @@ public class ComputerMove : MonoBehaviour
     private void startEngine()
     {
         runEngineThread();
+        engineLoaded = true;
         writeToEngine("uci");
     }
 
@@ -140,7 +141,6 @@ public class ComputerMove : MonoBehaviour
     {
         RunEngine(readOutputFromEngine);
         string nnuePath = Application.streamingAssetsPath + "/pikafish.nnue";
-        engineLoaded = true;
         #if UNITY_EDITOR
         WriteCommand($"setoption name EvalFile value {nnuePath}");
         #elif UNITY_STANDALONE_WIN
