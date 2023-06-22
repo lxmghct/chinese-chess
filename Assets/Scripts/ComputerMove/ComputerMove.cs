@@ -107,24 +107,24 @@ public class ComputerMove : MonoBehaviour
     public delegate void ReadOutputDelegate(string output);
     
     #if UNITY_EDITOR
-    [DllImport("D:/projects/unity/chinese-chess/Assets/Plugins/Engine/pikafish.dll")]
+    [DllImport("Assets/Plugins/Engine/pikafish.dll")]
     #elif UNITY_STANDALONE_WIN
-    [DllImport("Engine/pikafish")]
+    [DllImport("Assets/Plugins/Engine/pikafish.dll")]
     #elif UNITY_ANDROID
-    [DllImport("Engine/libpikafish")]
+    [DllImport("Assets/Plugins/Engine/libpikafish.so")]
     #else
-    [DllImport("Engine/pikafish")]
+    [DllImport("Assets/Plugins/Engine/pikafish")]
     #endif
-    public static extern void RunEngine(string evalFile, ReadOutputDelegate callback);
+    public static extern void RunEngine(ReadOutputDelegate callback);
 
     #if UNITY_EDITOR
-    [DllImport("D:/projects/unity/chinese-chess/Assets/Plugins/Engine/pikafish.dll")]
+    [DllImport("Assets/Plugins/Engine/pikafish.dll")]
     #elif UNITY_STANDALONE_WIN
-    [DllImport("Engine/pikafish")]
+    [DllImport("Assets/Plugins/Engine/pikafish.dll")]
     #elif UNITY_ANDROID
-    [DllImport("Engine/libpikafish")]
+    [DllImport("Assets/Plugins/Engine/libpikafish.so")]
     #else
-    [DllImport("Engine/pikafish")]
+    [DllImport("Assets/Plugins/Engine/pikafish")]
     #endif
     public static extern void WriteCommand(string command);
 
@@ -137,7 +137,8 @@ public class ComputerMove : MonoBehaviour
 
     private static void runEngineThread()
     {
-        RunEngine("D:/projects/unity/chinese-chess/Assets/Plugins/Engine/pikafish.nnue", readOutputFromEngine);
+        RunEngine(readOutputFromEngine);
+        WriteCommand($"setoption name EvalFile value Assets/Plugins/Engine/pikafish.nnue");
         engineLoaded = true;
     }
 
