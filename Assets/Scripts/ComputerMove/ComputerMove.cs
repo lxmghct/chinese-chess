@@ -8,6 +8,7 @@ using System;
 using System.Text;
 using Xiangqi;
 using System.Runtime.InteropServices;
+using System.IO;
 
 public class ComputerMove : MonoBehaviour
 {
@@ -138,8 +139,21 @@ public class ComputerMove : MonoBehaviour
     private static void runEngineThread()
     {
         RunEngine(readOutputFromEngine);
-        WriteCommand($"setoption name EvalFile value Assets/Plugins/Android/pikafish.nnue");
+        string nnuePath = Application.streamingAssetsPath + "/pikafish.nnue";
         engineLoaded = true;
+        #if UNITY_EDITOR
+        WriteCommand($"setoption name EvalFile value {nnuePath}");
+        #elif UNITY_STANDALONE_WIN
+        WriteCommand($"setoption name EvalFile value {nnuePath}");
+        #elif UNITY_ANDROID
+        string nnueRoot = Application.persistentDataPath + "/engine/";
+        string nnueDestPath = nnueRoot + "pikafish.nnue";
+        if (!File.Exists(nnueDestPath))
+        {
+            AndroidUtil.CopyFile(nnuePath, nnueDestPath);
+        }
+        WriteCommand($"setoption name EvalFile value {nnueDestPath}");
+        #endif
     }
 
     private static void readOutputFromEngine(string output)

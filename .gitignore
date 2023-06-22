@@ -81,3 +81,5 @@ Engine/
 Engine.meta
 Engines/
 Engines.meta
+*.nnue
+*.nnue.meta
