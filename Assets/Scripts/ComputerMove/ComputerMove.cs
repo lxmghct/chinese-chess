@@ -5,27 +5,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-using System.Threading;
-using System.Diagnostics;
 using System.Text;
 using Xiangqi;
 using System.Runtime.InteropServices;
-using Debug = UnityEngine.Debug;
 
 public class ComputerMove : MonoBehaviour
 {
-    #if UNITY_ANDROID
-    private static string enginePath = "Assets/Resources/Engine/Pikafish";
-    #elif UNITY_STANDALONE_WIN
-    private static string enginePath = "Assets/Resources/Engine/Pikafish.exe";
-    #else
-    private static string enginePath = "";
-    #endif
-
-    private Process engineProcess;
-    private Thread outputThread;
-
     private bool waitingForMove = false;
+    private static bool engineLoaded = false;
 
     private BoardUI boardObject;
     private short bestmove = 0;
@@ -34,18 +21,22 @@ public class ComputerMove : MonoBehaviour
     private Color engineInfoColor = Color.black;
     private Text engineScoreText;
     private Text engineInfoText;
+    private static string engineOutput = "";
 
     private int hashSize = 16;
     private int threadCount = 1;
-    private bool isEngineLoaded = false;
-
     void Start()
     {
-        runEngine();
+        startEngine();
     }
 
     void Update()
     {
+        if (engineOutput != "")
+        {
+            processEngineOutput();
+            engineOutput = "";
+        }
         if (bestmove != 0)
         {
             boardObject.MovePiece(bestmove);
@@ -107,84 +98,80 @@ public class ComputerMove : MonoBehaviour
         }
     }
 
-    private void runEngine()
+    private void startEngine()
     {
-        if (engineProcess != null)
-        {
-            engineProcess.Close();
-        }
-        // 创建一个进程对象
-        engineProcess = new Process();
-        // 设置进程信息
-        engineProcess.StartInfo.FileName = enginePath;
-        engineProcess.StartInfo.UseShellExecute = false;
-        engineProcess.StartInfo.RedirectStandardInput = true;
-        engineProcess.StartInfo.RedirectStandardOutput = true;
-        engineProcess.StartInfo.CreateNoWindow = true;
-        // 启动进程
-        engineProcess.Start();
-        if (outputThread != null)
-        {
-            outputThread.Abort();
-        }
-        outputThread = new Thread(receiveEngineOutput);
-        outputThread.Start(engineProcess);
-        // 检查引擎是否正常启动
-        try
-        {
-            writeToEngine("uci");
-            isEngineLoaded = true;
-        }
-        catch(Exception e)
-        {
-            Debug.Log(e);
-            isEngineLoaded = false;
-        }
-
+        runEngineThread();
+        writeToEngine("uci");
     }
 
-    #nullable enable
-    private void receiveEngineOutput(object? obj)
-    {
-        if (obj == null)
-        {
-            return;
-        }
-        Process process = (Process)obj;
-        string? output;
+    public delegate void ReadOutputDelegate(string output);
+    
+    #if UNITY_EDITOR
+    [DllImport("D:/projects/unity/chinese-chess/Assets/Plugins/Engine/pikafish.dll")]
+    #elif UNITY_STANDALONE_WIN
+    [DllImport("Engine/pikafish")]
+    #elif UNITY_ANDROID
+    [DllImport("Engine/libpikafish")]
+    #else
+    [DllImport("Engine/pikafish")]
+    #endif
+    public static extern void RunEngine(string evalFile, ReadOutputDelegate callback);
 
-        while (!process.StandardOutput.EndOfStream)
-        {
-            output = process.StandardOutput.ReadLine();
-            if (output.StartsWith("Final evaluation"))
-            {
-                // 局面评分, 格式: Final evaluation       +1.21 (white side) [with scaled NNUE, optimism, ...]
-                int index = "Final evaluation".Length;
-                while (output[++index] == ' ') { }
-                int start = index;
-                while (output[++index] != ' ') { }
-                boardScore = output.Substring(start, index - start);
-            }
-            else if (output.StartsWith("bestmove"))
-            {
-                if (!waitingForMove) { continue; }
-                waitingForMove = false;
-                // 最佳着法, 格式: bestmove e2e4 ponder e7e5
-                int index = "bestmove".Length;
-                while (output[++index] == ' ') { }
-                string move = output.Substring(index, 4);
-                bestmove = MoveUtil.StringToMove(move);
-            }
-        }
-    }
+    #if UNITY_EDITOR
+    [DllImport("D:/projects/unity/chinese-chess/Assets/Plugins/Engine/pikafish.dll")]
+    #elif UNITY_STANDALONE_WIN
+    [DllImport("Engine/pikafish")]
+    #elif UNITY_ANDROID
+    [DllImport("Engine/libpikafish")]
+    #else
+    [DllImport("Engine/pikafish")]
+    #endif
+    public static extern void WriteCommand(string command);
 
     private void writeToEngine(string command)
     {
-        if (engineProcess == null)
+        if (!engineLoaded) { return; }
+        Debug.Log(command);
+        WriteCommand(command);
+    }
+
+    private static void runEngineThread()
+    {
+        RunEngine("D:/projects/unity/chinese-chess/Assets/Plugins/Engine/pikafish.nnue", readOutputFromEngine);
+        engineLoaded = true;
+    }
+
+    private static void readOutputFromEngine(string output)
+    {
+        Debug.Log(output);
+        engineOutput = output;
+    }
+
+    private void processEngineOutput()
+    {
+        string[] lines = engineOutput.Split('\n');
+        foreach (string line in lines)
         {
-            return;
+            if (line.StartsWith("Final evaluation"))
+            {
+                // 局面评分, 格式: Final evaluation       +1.21 (white side) [with scaled NNUE, optimism, ...]
+                int index = "Final evaluation".Length;
+                while (line[++index] == ' ') { }
+                int start = index;
+                while (line[++index] != ' ') { }
+                boardScore = line.Substring(start, index - start);
+            }
+            else if (line.StartsWith("bestmove"))
+            {
+                if (!waitingForMove) { return; }
+                waitingForMove = false;
+                // 最佳着法, 格式: bestmove e2e4 ponder e7e5
+                int index = "bestmove".Length;
+                while (line[++index] == ' ') { }
+                string move = line.Substring(index, 4);
+                bestmove = MoveUtil.StringToMove(move);
+            }
         }
-        engineProcess.StandardInput.WriteLine(command);
     }
 
     public void UpdateEngineConfig()
@@ -204,13 +191,6 @@ public class ComputerMove : MonoBehaviour
 
     public void Think()
     {
-        if (!isEngineLoaded)
-        {
-            engineInfo = "引擎加载失败";
-            engineInfoColor = Color.red;
-            runEngine();
-            return;
-        }
         UpdateEngineConfig();
         if (boardObject == null)
         {
@@ -254,7 +234,7 @@ public class ComputerMove : MonoBehaviour
         {
             engineInfo = "引擎加载失败";
             engineInfoColor = Color.red;
-            runEngine();
+            startEngine();
         }
     }
 
@@ -278,7 +258,6 @@ public class ComputerMove : MonoBehaviour
     public void CloseEngine()
     {
         writeToEngine("quit");
-        engineProcess.Close();
     }
-    
+
 }
