@@ -113,7 +113,7 @@ public class ComputerMove : MonoBehaviour
     #elif UNITY_ANDROID
     [DllImport("Assets/Plugins/Engine/libpikafish.so")]
     #else
-    [DllImport("Assets/Plugins/Engine/pikafish")]
+    [DllImport("Assets/Plugins/Engine/libpikafish.so")]
     #endif
     public static extern void RunEngine(ReadOutputDelegate callback);
 
@@ -124,7 +124,7 @@ public class ComputerMove : MonoBehaviour
     #elif UNITY_ANDROID
     [DllImport("Assets/Plugins/Engine/libpikafish.so")]
     #else
-    [DllImport("Assets/Plugins/Engine/pikafish")]
+    [DllImport("Assets/Plugins/Engine/libpikafish.so")]
     #endif
     public static extern void WriteCommand(string command);
 

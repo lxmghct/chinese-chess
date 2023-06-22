@@ -4,10 +4,12 @@
 
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 public class GlobalConfig
 {
-    public static string ConfigPath = "Assets/Resources/Config/GlobalConfig.properties";
+    public static string ConfigRootPath = Application.persistentDataPath + "/configs/";
+    public static string GlobalConfigPath = ConfigRootPath + "GlobalConfig.properties";
     public static Dictionary<string, string> Configs = new Dictionary<string, string>()
     {
         {"HashSize", "16"},
@@ -31,18 +33,22 @@ public class GlobalConfig
     public static void LoadConfig()
     {
         // 先判断文件是否存在
-        if (!File.Exists(ConfigPath))
+        if (!Directory.Exists(ConfigRootPath))
+        {
+            Directory.CreateDirectory(ConfigRootPath);
+        }
+        if (!File.Exists(GlobalConfigPath))
         {
             // 不存在则创建文件
-            File.Create(ConfigPath).Close();
+            File.Create(GlobalConfigPath).Close();
             // 写入默认配置
             foreach (KeyValuePair<string, string> kv in DefaultConfigs)
             {
-                File.AppendAllText(ConfigPath, kv.Key + "=" + kv.Value + "\n");
+                File.AppendAllText(GlobalConfigPath, kv.Key + "=" + kv.Value + "\n");
             }
             return;
         }
-        string[] lines = File.ReadAllLines(ConfigPath);
+        string[] lines = File.ReadAllLines(GlobalConfigPath);
         foreach (string line in lines)
         {
             string[] kv = line.Split('=');
@@ -59,10 +65,10 @@ public class GlobalConfig
 
     public static void SaveConfig()
     {
-        File.WriteAllText(ConfigPath, "");
+        File.WriteAllText(GlobalConfigPath, "");
         foreach (KeyValuePair<string, string> kv in Configs)
         {
-            File.AppendAllText(ConfigPath, kv.Key + "=" + kv.Value + "\n");
+            File.AppendAllText(GlobalConfigPath, kv.Key + "=" + kv.Value + "\n");
         }
     }
 }
