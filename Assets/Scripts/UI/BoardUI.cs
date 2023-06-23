@@ -35,7 +35,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         isReverseBoard = GlobalConfig.Configs["IsBoardReverse"] == "true";
         DrawPieces();
         commentUI = GameObject.Find("Img-Comment").GetComponent<CommentUI>();
-        updateChoiceAndComment();
+        UpdateChoiceAndComment();
     }
 
     public void DrawPieces()
@@ -95,7 +95,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         startMovePieceAnimation(start, end);
         canOperate = false;
         clickPosition = EMPTY_POSITION;
-        updateChoiceAndComment();
+        UpdateChoiceAndComment();
     }
 
     private void judgeResult()
@@ -121,7 +121,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         if (index < 0 || index >= notation.GetNotationNodeCount()) { return; }
         notation.GoTo(index);
         DrawPieces();
-        updateChoiceAndComment();
+        UpdateChoiceAndComment();
     }
 
     public void Withdraw()
@@ -164,7 +164,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         canOperate = false;
         byte start = (byte)(currentMove >> 8), end = (byte)(currentMove & 0xff);
         startMovePieceAnimation(end, start);
-        updateChoiceAndComment();
+        UpdateChoiceAndComment();
         return true;
     }
 
@@ -175,11 +175,11 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         canOperate = false;
         short currentMove = notation.GetLastMove();
         startMovePieceAnimation((byte)(currentMove >> 8), (byte)(currentMove & 0xff));
-        updateChoiceAndComment();
+        UpdateChoiceAndComment();
         return true;
     }
 
-    private void updateChoiceAndComment()
+    public void UpdateChoiceAndComment()
     {
         short currentMove = notation.GetLastMove();
         if (currentMove == 0)
@@ -245,7 +245,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
                         notation.LoadPgnDataString(file.ToUTF8String());
                         notation.GoTo(0);
                         DrawPieces();
-                        updateChoiceAndComment();
+                        UpdateChoiceAndComment();
                     }
                     catch
                     {
@@ -288,9 +288,16 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     {
         isReverseBoard = !isReverseBoard;
         DrawPieces();
-        updateChoiceAndComment();
+        UpdateChoiceAndComment();
         GlobalConfig.Configs["IsBoardReverse"] = isReverseBoard ? "true" : "false";
         GlobalConfig.SaveConfig();
+    }
+
+    public void ReloadNotation(ChessNotation newNotation)
+    {
+        notation.CopyFrom(newNotation);
+        DrawPieces();
+        UpdateChoiceAndComment();
     }
     
 }

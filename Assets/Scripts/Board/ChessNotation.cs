@@ -27,6 +27,22 @@ namespace Xiangqi
             this.Board = new Board(board);
         }
 
+        public NotationNode(NotationNode node)
+        {
+            this.Board = new Board(node.Board);
+            this.Choice = node.Choice;
+            for (int i = 0; i < node.Next.Count; i++)
+            {
+                NotationNode n = new NotationNode(node.Next[i]);
+                this.Next.Add(n);
+                n.Pre = this;
+            }
+            for (int i = 0; i < node.Moves.Count; i++)
+            {
+                this.Moves.Add(node.Moves[i]);
+            }
+        }
+
         public int GetMoveCount() => Moves.Count;
     }
 
@@ -53,6 +69,21 @@ namespace Xiangqi
             }
             Root = new NotationNode(new Board(fen));
             Current = Root;
+        }
+
+        public ChessNotation(ChessNotation notation)
+        {
+            CopyFrom(notation);
+        }
+
+        public void CopyFrom(ChessNotation notation)
+        {
+            Root = new NotationNode(notation.Root);
+            Current = GetByIndex(notation.GetCurrentIndex())!;
+            foreach (KeyValuePair<string, string> pair in notation.PgnInfo.Info)
+            {
+                PgnInfo.Info[pair.Key] = pair.Value;
+            }
         }
 
         public void InitBoard(Board board)
