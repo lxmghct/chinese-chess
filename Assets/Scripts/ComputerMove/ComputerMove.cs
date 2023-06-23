@@ -1,17 +1,27 @@
 /// <summary>
 /// Computer move
 /// </summary>
-
 using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Text;
 using Xiangqi;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.IO;
+
 
 public class ComputerMove : MonoBehaviour
 {
+    #if UNITY_EDITOR
+    private const string dllPath = "Assets/Plugins/Engine/pikafish.dll";
+    #elif UNITY_STANDALONE_WIN
+    private const string dllPath = "Assets/Plugins/Engine/pikafish.dll";
+    #elif UNITY_ANDROID
+    private const string dllPath = "pikafish";
+    #else
+    private const string dllPath = "pikafish";
+    #endif
     private bool waitingForMove = false;
     private bool engineLoaded = false;
 
@@ -108,33 +118,20 @@ public class ComputerMove : MonoBehaviour
 
     public delegate void ReadOutputDelegate(string output);
     
-    #if UNITY_EDITOR
-    [DllImport("Assets/Plugins/Engine/pikafish.dll")]
-    #elif UNITY_STANDALONE_WIN
-    [DllImport("Assets/Plugins/Engine/pikafish.dll")]
-    #elif UNITY_ANDROID
-    [DllImport("pikafish")]
-    #else
-    [DllImport("pikafish")]
-    #endif
+    [DllImport(dllPath)]
     public static extern void RunEngine(ReadOutputDelegate callback);
 
-    #if UNITY_EDITOR
-    [DllImport("Assets/Plugins/Engine/pikafish.dll")]
-    #elif UNITY_STANDALONE_WIN
-    [DllImport("Assets/Plugins/Engine/pikafish.dll")]
-    #elif UNITY_ANDROID
-    [DllImport("pikafish")]
-    #else
-    [DllImport("pikafish")]
-    #endif
-    public static extern void WriteCommand(string command);
+    [DllImport(dllPath)]
+    public static extern void WriteCommand(string command, ReadOutputDelegate callback = null);
 
-    private void writeToEngine(string command)
+    [DllImport(dllPath)]
+    public static extern void WriteCommands(string commands, ReadOutputDelegate callback = null);
+
+    private void writeToEngine(string commands)
     {
         if (!engineLoaded) { return; }
-        Debug.Log(command);
-        WriteCommand(command);
+        Debug.Log(commands);
+        WriteCommands(commands, readOutputFromEngine);
     }
 
     private static void runEngineThread()
@@ -142,9 +139,9 @@ public class ComputerMove : MonoBehaviour
         RunEngine(readOutputFromEngine);
         string nnuePath = Application.streamingAssetsPath + "/pikafish.nnue";
         #if UNITY_EDITOR
-        WriteCommand($"setoption name EvalFile value {nnuePath}");
+        WriteCommand($"setoption name EvalFile value {nnuePath}", readOutputFromEngine);
         #elif UNITY_STANDALONE_WIN
-        WriteCommand($"setoption name EvalFile value {nnuePath}");
+        WriteCommand($"setoption name EvalFile value {nnuePath}", readOutputFromEngine);
         #elif UNITY_ANDROID
         string nnueRoot = Application.persistentDataPath + "/engine/";
         string nnueDestPath = nnueRoot + "pikafish.nnue";
@@ -152,7 +149,7 @@ public class ComputerMove : MonoBehaviour
         {
             AndroidUtil.CopyFile(nnuePath, nnueDestPath);
         }
-        WriteCommand($"setoption name EvalFile value {nnueDestPath}");
+        WriteCommand($"setoption name EvalFile value {nnueDestPath}", readOutputFromEngine);
         #endif
     }
 
@@ -239,10 +236,10 @@ public class ComputerMove : MonoBehaviour
         int maxTime = int.Parse(GlobalConfig.Configs["MaxTime"]);
         try
         {
-            writeToEngine(command.ToString());
+            writeToEngine($"{command.ToString()}\ngo depth {maxDepth} movetime {maxTime}");
             waitingForMove = true;
-            writeToEngine($"go depth {maxDepth} movetime {maxTime}");
             engineInfo = "电脑思考中...";
+            notation.Current.Board.SetComment(command.ToString());
             engineInfoColor = node.Board.Side == SIDE.Red ? Color.red : Color.black;
         }
         catch (Exception)
@@ -261,8 +258,7 @@ public class ComputerMove : MonoBehaviour
             boardObject = GameObject.Find("Img-Board").GetComponent<BoardUI>();
         }
         Board b = boardObject.GetNotation().Current.Board;
-        writeToEngine($"position fen {Board.GetFenStringFromBoard(b)}");
-        writeToEngine("eval");
+        writeToEngine($"position fen {Board.GetFenStringFromBoard(b)}\neval");
     }
 
     public void StopEngineThinking()

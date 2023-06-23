@@ -83,3 +83,5 @@ Engines/
 Engines.meta
 *.nnue
 *.nnue.meta
+
+Assets/Plugins/Android/libs/**/*.so
