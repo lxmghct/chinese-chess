@@ -91,6 +91,10 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     private void movePiece(byte start, byte end)
     {
         if (!canOperate) { return; }
+        if (getResult() != "") {
+            judgeResult();
+            return;
+        }
         notation.MovePiece((short)(start << 8 | end));
         startMovePieceAnimation(start, end);
         canOperate = false;
@@ -100,14 +104,26 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     private void judgeResult()
     {
+        string result = getResult();
+        if (result != "")
+        {
+            UIUtil.OpenMessageBox("游戏结束", result);
+        }
+    }
+
+    private string getResult()
+    {
         if (notation.Current.Board.IsCurrentSideLose())
         {
-            string result = notation.Current.Board.Side == SIDE.Red ? "黑胜" : "红胜";
-            UIUtil.OpenMessageBox("游戏结束", result);
+            return notation.Current.Board.Side == SIDE.Red ? "黑胜" : "红胜";
         }
         else if (notation.Current.Board.IsDraw())
         {
-            UIUtil.OpenMessageBox("游戏结束", "和棋");
+            return "和棋";
+        }
+        else
+        {
+            return "";
         }
     }
 
