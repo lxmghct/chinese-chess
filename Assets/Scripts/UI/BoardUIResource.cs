@@ -14,6 +14,8 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     private static readonly float boardImageHeight = 694;
     private static readonly Vector2 boardImageLeftTop = new Vector2(41, 85);
     private static readonly Vector2 boardImageRightBottom = new Vector2(512, 612);
+    public static Sprite[] pieceSprites;
+    public static Sprite[] pieceBorders;
 
     // 非静态变量
     private GameObject boardObject;
@@ -22,8 +24,6 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     private float pieceSize;
     private Vector2 leftBottom;
     private Vector2 rightTop;
-    private Sprite[] pieceSprites;
-    private Sprite[] pieceBorders;
     private GameObject[] choiceObjects;
     private short moveOfAnimation = 0;
     private Dictionary<byte, GameObject> pieceObjects = new Dictionary<byte, GameObject>();
@@ -67,7 +67,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         rightTop = new Vector2(leftBottom.x + (columns - 1) * cellWidth, leftBottom.y + (rows - 1) * cellHeight);
     }
 
-    private Texture2D LoadTexture2D(string path)
+    public static Texture2D LoadTexture2D(string path)
     {
         // 去除后缀
         int index = path.LastIndexOf('.');
@@ -79,7 +79,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         return texture;
     }
     
-    private Sprite LoadSprite(string path)
+    public static Sprite LoadSprite(string path)
     {
         // Texture2D texture = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         Texture2D texture = LoadTexture2D(path);
@@ -200,28 +200,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         }
         // 设置棋子位置
         Vector2 coordinate = positionToCoordinate(position);
-        // 先绘制棋子边框
-        GameObject borderObject = new GameObject("PieceBorder", typeof(Image));
-        borderObject.transform.SetParent(boardObject.transform);
-        RectTransform borderRect = borderObject.GetComponent<RectTransform>();
-        borderRect.sizeDelta = new Vector2(pieceSize, pieceSize);
-        borderRect.anchoredPosition = new Vector2(coordinate.x, coordinate.y);
-
-        Image borderImage = borderObject.GetComponent<Image>();
-        borderImage.sprite = pieceBorders[PieceUtil.GetPieceSide(piece)];
-        borderImage.type = Image.Type.Sliced;
-
-        // 绘制棋子
-        float newSize = pieceSize * 0.8f;
-        GameObject pieceObject = new GameObject("Piece", typeof(Image));
-        pieceObject.transform.SetParent(borderObject.transform);
-        RectTransform pieceRect = pieceObject.GetComponent<RectTransform>();
-        pieceRect.sizeDelta = new Vector2(newSize, newSize);
-        pieceRect.anchoredPosition = new Vector2(0, 0);
-
-        Image pieceImage = pieceObject.GetComponent<Image>();
-        pieceImage.sprite = pieceSprites[PieceUtil.GetPieceType(piece) - 1 + 7 * PieceUtil.GetPieceSide(piece)];
-        pieceImage.type = Image.Type.Sliced;
+        GameObject borderObject = UIUtil.DrawPiece(piece, coordinate, pieceSize, boardObject.transform);
 
         pieceObjects.Add(position, borderObject);
     }

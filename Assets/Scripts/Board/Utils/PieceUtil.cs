@@ -122,9 +122,9 @@ namespace Xiangqi
 
         public static bool IsSameCollumn(byte piece1, byte piece2) => GetCollumn(piece1) == GetCollumn(piece2);
 
-        public static bool IsCrossHalf(byte piece, byte side) => ((side == SIDE.Red) ^ (GetRow(piece) > 4));
+        public static bool IsCrossHalf(byte position, byte side) => ((side == SIDE.Red) ^ (GetRow(position) > 4));
 
-        public static bool IsPositionValid(byte pieceType, byte position)
+        public static bool IsPositionValid(byte pieceType, byte position, byte side = 2)
         {
             if (position < 0 || position > 89)
             {
@@ -133,11 +133,13 @@ namespace Xiangqi
             switch (pieceType)
             {
                 case PIECE_TYPE.King:
-                    return PiecePosition.King[position] == 1;
+                    return PiecePosition.King[position] == 1 && (side > 1 || !IsCrossHalf(position, side));
                 case PIECE_TYPE.Advisor:
-                    return PiecePosition.Advisor[position] == 1;
+                    return PiecePosition.Advisor[position] == 1 && (side > 1 || !IsCrossHalf(position, side));
                 case PIECE_TYPE.Bishop:
-                    return PiecePosition.Bishop[position] == 1;
+                    return PiecePosition.Bishop[position] == 1 && (side > 1 || !IsCrossHalf(position, side));
+                case PIECE_TYPE.Pawn:
+                    return side > 1 || IsCrossHalf(position, side) || PiecePosition.PawnUnCrossHalf[position] == 1;
                 default:
                     return true;
             }

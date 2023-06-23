@@ -19,6 +19,9 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     private bool canOperate = true;
     private CommentUI commentUI;
     private ComputerMove engine;
+    public bool IsEditBoard = false;
+    public PieceChooseWindow pieceChooseWindow;
+    public Board BoardForEdit;
     private SupportedFileType pgnFileType = new SupportedFileType() {
 		Name = "Portable Game Notation",
 		Extension = "pgn",
@@ -38,9 +41,12 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         UpdateChoiceAndComment();
     }
 
-    public void DrawPieces()
+    public void DrawPieces(byte[] pieces = null)
     {
-        byte[] pieces = notation.Current.Board.Pieces;
+        if (pieces == null)
+        {
+            pieces = notation.Current.Board.Pieces;
+        }
         for (int i = 0; i < 90; i++)
         {
             DrawPiece((byte)i, pieces[i]);
@@ -49,11 +55,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (!canOperate)
-        {
-            return;
-        }
-        // 先获取当前组件的左上角坐标
+        if (!canOperate) { return; }
         // 将点击位置从屏幕坐标转换为父元素的本地坐标
         RectTransform rectTransform = GetComponent<RectTransform>();
         Vector2 localPosition;
@@ -62,6 +64,18 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         byte oldPosition = clickPosition;
         clickPosition = coordinateToPosition(localPosition.x, localPosition.y);
         
+        if (IsEditBoard)
+        {
+            handleEditBoardClick(localPosition, oldPosition);
+        }
+        else
+        {
+            handleMovePieceClick(oldPosition);
+        }
+    }
+
+    private void handleMovePieceClick(byte oldPosition)
+    {
         if (clickPosition > 89)
         {
             updateChoice(0, EMPTY_POSITION);
@@ -85,7 +99,43 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         {
             movePiece(oldPosition, clickPosition);
         }
+        else
+        {
+            clickPosition = EMPTY_POSITION;
+        }
         updateChoice(0, EMPTY_POSITION);
+    }
+
+    private void handleEditBoardClick(Vector2 coordinate, byte oldPosition)
+    {
+        if (clickPosition > 89)
+        {
+            updateChoice(0, EMPTY_POSITION);
+            return;
+        }
+        if (isReverseBoard)
+        {
+            clickPosition = (byte)(89 - clickPosition);
+        }
+        Board b = BoardForEdit;
+        if (oldPosition > 89 || b.Pieces[oldPosition] == PIECE.Empty)
+        {
+            updateChoice(0, clickPosition);
+            if (b.Pieces[clickPosition] == PIECE.Empty)
+            {
+                if (pieceChooseWindow == null) { return; }
+                pieceChooseWindow.OpenWindow(BoardForEdit.Pieces, coordinate, pieceSize);
+            }
+        }
+        else
+        {
+            b.Pieces[clickPosition] = b.Pieces[oldPosition];
+            b.Pieces[oldPosition] = PIECE.Empty;
+            DrawPiece(clickPosition, b.Pieces[clickPosition]);
+            DrawPiece(oldPosition, PIECE.Empty);
+            clickPosition = EMPTY_POSITION;
+            updateChoice(0, EMPTY_POSITION);
+        }
     }
 
     private void movePiece(byte start, byte end)
@@ -303,6 +353,10 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     public void ChangeBoardReverse()
     {
         isReverseBoard = !isReverseBoard;
+        if (clickPosition != EMPTY_POSITION)
+        {
+            clickPosition = (byte)(89 - clickPosition);
+        }
         DrawPieces();
         UpdateChoiceAndComment();
         GlobalConfig.Configs["IsBoardReverse"] = isReverseBoard ? "true" : "false";
@@ -315,5 +369,59 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         DrawPieces();
         UpdateChoiceAndComment();
     }
+
+    public void StartEditBoard()
+    {
+        IsEditBoard = true;
+        updateChoice(0, EMPTY_POSITION);
+        updateChoice(1, EMPTY_POSITION);
+        updateChoice(2, EMPTY_POSITION);
+        commentUI.SetComment("");
+        BoardForEdit = new Board(notation.Current.Board);
+    }
+
+    public void CancelEditBoard()
+    {
+        IsEditBoard = false;
+        DrawPieces();
+        UpdateChoiceAndComment();
+    }
+
+    public void PlacePiece(byte piece)
+    {
+        if (clickPosition > 89 || !PieceUtil.IsPositionValid(PieceUtil.GetPieceType(piece), clickPosition, PieceUtil.GetPieceSide(piece)))
+        {
+            return;
+        }
+        BoardForEdit.Pieces[clickPosition] = piece;
+        DrawPiece(clickPosition, piece);
+        clickPosition = EMPTY_POSITION;
+    }
+
+    public void SaveEditBoard()
+    {
+        notation = new ChessNotation(BoardForEdit);
+        CancelEditBoard();
+    }
+
+    public void ChangeEditBoardSide()
+    {
+        BoardForEdit.Side = (byte)(1 - BoardForEdit.Side);
+    }
+
+    public void InitEditBoard()
+    {
+        BoardForEdit = new Board();
+        DrawPieces(BoardForEdit.Pieces);
+        updateChoice(0, EMPTY_POSITION);
+    }
+
+    public void ClearEditBoard()
+    {
+        BoardForEdit = new Board(Board.EMPTY_FEN);
+        DrawPieces(BoardForEdit.Pieces);
+        updateChoice(0, EMPTY_POSITION);
+    }
+
     
 }
