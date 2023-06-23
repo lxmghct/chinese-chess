@@ -4,11 +4,11 @@ using UnityEngine.UI;
 
 public class ConfigUI : MonoBehaviour
 {
-    private InputField hashSizeInput;
-    private InputField maxDepthInput;
-    private InputField maxTimeInput;
-    private InputField threadCountInput;
-    private Button isScoreShowButton;
+    private InputField hashSizeInput = null;
+    private InputField maxDepthInput = null;
+    private InputField maxTimeInput = null;
+    private InputField threadCountInput = null;
+    private Button isScoreShowButton = null;
 
     void Start()
     {
@@ -16,14 +16,16 @@ public class ConfigUI : MonoBehaviour
 
     public void LoadConfig()
     {
+        Transform configTransform = transform.Find("Img-Config");
         if (hashSizeInput == null || maxDepthInput == null || maxTimeInput == null || threadCountInput == null || isScoreShowButton == null)
         {
-            hashSizeInput = transform.Find("Input-Config-HashSize").GetComponent<InputField>();
-            maxDepthInput = transform.Find("Input-Config-MaxDepth").GetComponent<InputField>();
-            maxTimeInput = transform.Find("Input-Config-MaxTime").GetComponent<InputField>();
-            threadCountInput = transform.Find("Input-Config-ThreadCount").GetComponent<InputField>();
-            isScoreShowButton = transform.Find("Btn-Config-ShowScore").GetComponent<Button>();
+            hashSizeInput = configTransform.Find("Input-Config-HashSize").GetComponent<InputField>();
+            maxDepthInput = configTransform.Find("Input-Config-MaxDepth").GetComponent<InputField>();
+            maxTimeInput = configTransform.Find("Input-Config-MaxTime").GetComponent<InputField>();
+            threadCountInput = configTransform.Find("Input-Config-ThreadCount").GetComponent<InputField>();
+            isScoreShowButton = configTransform.Find("Btn-Config-ShowScore").GetComponent<Button>();
         }
+        Debug.Log(GlobalConfig.Configs["HashSize"] + " " + GlobalConfig.Configs["MaxDepth"] + " " + GlobalConfig.Configs["MaxTime"] + " " + GlobalConfig.Configs["ThreadCount"] + " " + GlobalConfig.Configs["ShowScore"]);
         hashSizeInput.text = GlobalConfig.Configs["HashSize"];
         maxDepthInput.text = GlobalConfig.Configs["MaxDepth"];
         maxTimeInput.text = GlobalConfig.Configs["MaxTime"];
