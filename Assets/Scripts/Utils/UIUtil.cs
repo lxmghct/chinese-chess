@@ -50,5 +50,10 @@ public class UIUtil
         return borderObject;
     }
 
+    public static void ChangeEditBoardButtonStatus(bool isEdit)
+    {
+        GameObject.Find("Canvas").transform.Find("Img-BottomButtons").gameObject.SetActive(!isEdit);
+        GameObject.Find("Canvas").transform.Find("Img-BottomButtonsForEditBoard").gameObject.SetActive(isEdit);
+    }
     
 }

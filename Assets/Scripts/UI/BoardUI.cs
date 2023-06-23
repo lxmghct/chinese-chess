@@ -378,6 +378,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         updateChoice(2, EMPTY_POSITION);
         commentUI.SetComment("");
         BoardForEdit = new Board(notation.Current.Board);
+        GameObject.Find("Btn-EditSide").GetComponentInChildren<Text>().text = BoardForEdit.Side == SIDE.Red ? "先手:红方" : "先手:黑方";
     }
 
     public void CancelEditBoard()
@@ -385,6 +386,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         IsEditBoard = false;
         DrawPieces();
         UpdateChoiceAndComment();
+        UIUtil.ChangeEditBoardButtonStatus(false);
     }
 
     public void PlacePiece(byte piece)
@@ -400,6 +402,11 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
 
     public void SaveEditBoard()
     {
+        if (BoardForEdit.IsChecked(1 - BoardForEdit.Side))
+        {
+            UIUtil.OpenMessageBox("Error", BoardForEdit.Side == SIDE.Red ? "红方被将军" : "黑方被将军");
+            return;
+        }
         notation = new ChessNotation(BoardForEdit);
         CancelEditBoard();
     }
@@ -407,11 +414,12 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     public void ChangeEditBoardSide()
     {
         BoardForEdit.Side = (byte)(1 - BoardForEdit.Side);
+        GameObject.Find("Btn-EditSide").GetComponentInChildren<Text>().text = BoardForEdit.Side == SIDE.Red ? "先手:红方" : "先手:黑方";
     }
 
     public void InitEditBoard()
     {
-        BoardForEdit = new Board();
+        BoardForEdit = new Board(Board.INIT_FEN);
         DrawPieces(BoardForEdit.Pieces);
         updateChoice(0, EMPTY_POSITION);
     }
@@ -423,5 +431,4 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         updateChoice(0, EMPTY_POSITION);
     }
 
-    
 }
