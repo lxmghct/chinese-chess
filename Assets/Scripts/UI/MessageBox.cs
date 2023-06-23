@@ -11,8 +11,9 @@ public class MessageBox : MonoBehaviour
 
     public void ShowMessage(string title, string message)
     {
-        transform.Find("Text-MessageBox-Content").GetComponent<Text>().text = message;
-        transform.Find("Text-MessageBox-Title").GetComponent<Text>().text = title;
+        Transform msgTransform = transform.Find("Img-MsgBox");
+        msgTransform.Find("Text-MessageBox-Content").GetComponent<Text>().text = message;
+        msgTransform.Find("Text-MessageBox-Title").GetComponent<Text>().text = title;
         gameObject.SetActive(true);
     }
     

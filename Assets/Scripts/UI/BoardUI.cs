@@ -98,25 +98,16 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         updateChoiceAndComment();
     }
 
-    private void openMessageBox(string title, string message)
-    {
-        MessageBox messageBox = GameObject.Find("Canvas").transform.Find("Img-MessageBox").GetComponent<MessageBox>();
-        if (messageBox != null)
-        {
-            messageBox.ShowMessage(title, message); 
-        }
-    }
-
     private void judgeResult()
     {
         if (notation.Current.Board.IsCurrentSideLose())
         {
             string result = notation.Current.Board.Side == SIDE.Red ? "黑胜" : "红胜";
-            openMessageBox("游戏结束", result);
+            UIUtil.OpenMessageBox("游戏结束", result);
         }
         else if (notation.Current.Board.IsDraw())
         {
-            openMessageBox("游戏结束", "和棋");
+            UIUtil.OpenMessageBox("游戏结束", "和棋");
         }
     }
 
@@ -223,7 +214,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         catch (System.Exception e)
         {
             Debug.Log(e);
-            openMessageBox("Error", "保存棋谱失败");
+            UIUtil.OpenMessageBox("Error", "保存棋谱失败");
         }
         // 打开保存对话框
         
@@ -258,7 +249,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
                     }
                     catch
                     {
-                        openMessageBox("Error", "导入棋谱失败");
+                        UIUtil.OpenMessageBox("Error", "导入棋谱失败");
                     }
                 } else {
                     // The file selection was cancelled.	
