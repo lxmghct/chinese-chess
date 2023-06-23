@@ -144,7 +144,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             {
                 // ScrollViewAlter scrollViewAlter = GameObject.Find("ScrollView-Alter").GetComponent<ScrollViewAlter>();
                 // scrollView未激活，不能直接获取组件，需要先获取父组件
-                ScrollViewAlter scrollViewAlter = GameObject.Find("Canvas").transform.Find("ScrollView-Alter").GetComponent<ScrollViewAlter>();
+                ScrollViewAlter scrollViewAlter = GameObject.Find("Canvas").transform.Find("AlterWindow").GetComponent<ScrollViewAlter>();
                 scrollViewAlter.SetAlterList(notation.Current);
                 return;
             }
