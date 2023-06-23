@@ -27,6 +27,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
     private GameObject[] choiceObjects;
     private short moveOfAnimation = 0;
     private Dictionary<byte, GameObject> pieceObjects = new Dictionary<byte, GameObject>();
+    private float scaleFactor;
     private void LoadResources()
     {
         LoadBoard();
@@ -45,8 +46,9 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         boardImage.sprite = LoadSprite(imageRootPath + "board.png");
         boardImage.type = Image.Type.Sliced;
         // 根据BoardUI的RectTransform的大小，按比例缩放背景图片
-        float originWidth = rectTransform.rect.width;
-        float originHeight = rectTransform.rect.height;
+        scaleFactor = GameObject.Find("Canvas").GetComponent<Canvas>().scaleFactor;
+        float originWidth = rectTransform.rect.width * scaleFactor;
+        float originHeight = rectTransform.rect.height * scaleFactor;
         RectTransform boardRect = boardObject.GetComponent<RectTransform>();
         if (originWidth / originHeight > boardImageWidth / boardImageHeight)
         {

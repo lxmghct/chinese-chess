@@ -60,6 +60,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         RectTransform rectTransform = GetComponent<RectTransform>();
         Vector2 localPosition;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, eventData.position, eventData.pressEventCamera, out localPosition);
+        localPosition *= scaleFactor;
         // 处理棋盘点击事件的逻辑
         byte oldPosition = clickPosition;
         clickPosition = coordinateToPosition(localPosition.x, localPosition.y);

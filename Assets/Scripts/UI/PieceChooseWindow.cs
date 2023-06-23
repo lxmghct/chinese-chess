@@ -12,6 +12,7 @@ public class PieceChooseWindow : MonoBehaviour, IPointerClickHandler
     private float windowWidth;
     private float windowHeight;
     public BoardUI boardObject;
+    private float scaleFactor;
 
     private void Start()
     {
@@ -25,6 +26,7 @@ public class PieceChooseWindow : MonoBehaviour, IPointerClickHandler
         {
             return;
         }
+        scaleFactor = GameObject.Find("Canvas").GetComponent<Canvas>().scaleFactor;
         transform.parent.gameObject.SetActive(true);
         resizeWindow();
         moveWindow(position);
@@ -36,6 +38,7 @@ public class PieceChooseWindow : MonoBehaviour, IPointerClickHandler
         RectTransform rectTransform = GetComponent<RectTransform>();
         Vector2 localPosition;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, eventData.position, eventData.pressEventCamera, out localPosition);
+        localPosition *= scaleFactor;
         int temp = getRowAndColFromCoordinate(localPosition);
         int row = temp / 10, col = temp % 10;
         List<byte> pieces = row > 0 ? blackPieces : (redPieces.Count > 0 ? redPieces : blackPieces);
@@ -94,6 +97,7 @@ public class PieceChooseWindow : MonoBehaviour, IPointerClickHandler
 
     private void moveWindow(Vector2 position)
     {
+        position /= scaleFactor;
         RectTransform rectTransform = GetComponent<RectTransform>();
         // 把窗口移动到点击位置下方
         rectTransform.anchoredPosition = new Vector2(position.x, position.y - windowHeight / 2 - 20);
