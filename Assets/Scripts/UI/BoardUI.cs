@@ -228,7 +228,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
         
         File.Delete(path);
         
-        GameObject.Find("Img-Menu").SetActive(false);
+        GameObject.Find("MenuWindow").SetActive(false);
 
     }
 
@@ -256,7 +256,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
                 }
             }
         );
-        GameObject.Find("Img-Menu").SetActive(false);
+        GameObject.Find("MenuWindow").SetActive(false);
     }
 
     public void SetComment(string comment)
