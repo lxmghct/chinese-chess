@@ -45,6 +45,7 @@ namespace Xiangqi
             Side = board.Side;
             Round = board.Round;
             NoCapRound = board.NoCapRound;
+            Comment = board.Comment;
             for (int i = 0; i < 90; i++)
             {
                 Pieces[i] = board.Pieces[i];

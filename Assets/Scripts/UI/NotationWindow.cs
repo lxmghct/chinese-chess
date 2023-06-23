@@ -57,6 +57,7 @@ public class NotationWindow : MonoBehaviour
         highlightNode(ref currentNotationIndex, notationButtons, buttonIndex);
         notation.GoTo(buttonIndex);
         ReloadAlter();
+        readNewComment();
     }
 
     private void OnAlterButtonClick(int buttonIndex)
@@ -64,6 +65,47 @@ public class NotationWindow : MonoBehaviour
         highlightNode(ref currentAlterIndex, alterButtons, buttonIndex);
         notation.Current.Choice = buttonIndex;
         ReloadNotation();
+        readNewComment();
+    }
+
+    public void CancelEdit()
+    {
+        commentInputField.readOnly = true;
+        NotationNode n = notation.Current;
+        commentInputField.text = n.Next[n.Choice].Board.Comment;
+        editButton.GetComponentInChildren<Text>().text = "编辑注解";
+        cancelButton.gameObject.SetActive(false);
+    }
+
+    public void EditComment()
+    {
+        commentInputField.readOnly = false;
+        editButton.GetComponentInChildren<Text>().text = "保存";
+        cancelButton.gameObject.SetActive(true);
+    }
+
+    public void SaveComment()
+    {
+        NotationNode n = notation.Current;
+        n.Next[n.Choice].Board.Comment = commentInputField.text;
+        CancelEdit();
+    }
+
+    public void SaveOrEditComment()
+    {
+        if (editButton.GetComponentInChildren<Text>().text == "编辑注解")
+        {
+            EditComment();
+        }
+        else
+        {
+            SaveComment();
+        }
+    }
+
+    private void readNewComment()
+    {
+        CancelEdit();
     }
 
     void highlightNode(ref int oldIndex, GameObject[] buttons, int buttonIndex)
@@ -102,7 +144,11 @@ public class NotationWindow : MonoBehaviour
             notationList[i] = "      " + temp + ChessNotationUtil.MoveToChineseNotation(node.Moves[node.Choice], node.Board.Pieces);
             if (node.Moves.Count > 1)
             {
-                notationList[i] += "   M";
+                notationList[i] += "     M";
+            }
+            if (node.Next[node.Choice].Board.Comment != "")
+            {
+                notationList[i] += node.Moves.Count > 1 ? " C" : "         C";
             }
         }
         destroyButtons(notationButtons);
@@ -113,16 +159,21 @@ public class NotationWindow : MonoBehaviour
 
     private void ReloadAlter()
     {
-        int len = notation.Current.Moves.Count;
+        NotationNode n = notation.Current;
+        int len = n.Moves.Count;
         alterList = new string[len];
         for (int i = 0; i < len; i++)
         {
             alterList[i] = "      " + (i + 1) + ". " + ChessNotationUtil.MoveToChineseNotation(notation.Current.Moves[i], notation.Current.Board.Pieces);
+            if (n.Next[i].Board.Comment != "")
+            {
+                alterList[i] += "     C";
+            }
         }
         destroyButtons(alterButtons);
         alterButtons = new GameObject[len];
         CreateButtonList(alterList, alterContent, alterButtons, OnAlterButtonClick);
-        highlightNode(ref currentAlterIndex, alterButtons, notation.Current.Choice);
+        highlightNode(ref currentAlterIndex, alterButtons, n.Choice);
     }
 
     public void OpenWindow()

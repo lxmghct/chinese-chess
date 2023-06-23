@@ -5877,7 +5877,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1115582537}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1407827948}
+        m_TargetAssemblyTypeName: NotationWindow, Assembly-CSharp
+        m_MethodName: CancelEdit
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1115582537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7059,7 +7071,7 @@ MonoBehaviour:
   m_InputType: 0
   m_AsteriskChar: 42
   m_KeyboardType: 0
-  m_LineType: 0
+  m_LineType: 2
   m_HideMobileInput: 0
   m_CharacterValidation: 0
   m_CharacterLimit: 0
@@ -7078,7 +7090,7 @@ MonoBehaviour:
   m_Text: 
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
-  m_ReadOnly: 0
+  m_ReadOnly: 1
   m_ShouldActivateOnSelect: 1
 --- !u!114 &1264332548
 MonoBehaviour:
@@ -8316,7 +8328,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1560349496}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1407827948}
+        m_TargetAssemblyTypeName: NotationWindow, Assembly-CSharp
+        m_MethodName: EditComment
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1560349496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10238,7 +10262,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
-    m_HorizontalOverflow: 1
+    m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 
