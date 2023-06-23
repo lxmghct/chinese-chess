@@ -72,7 +72,7 @@ public partial class BoardUI : MonoBehaviour, IPointerClickHandler
             clickPosition = (byte)(89 - clickPosition);
         }
         Board b = notation.Current.Board;
-        if (oldPosition > 89 || b.Pieces[oldPosition] == PIECE.Empty)
+        if (oldPosition > 89 || b.Pieces[oldPosition] == PIECE.Empty || PieceUtil.GetPieceSide(b.Pieces[oldPosition]) != b.Side)
         {
             byte piece2 = b.Pieces[clickPosition];
             if (piece2 != PIECE.Empty && PieceUtil.GetPieceSide(piece2) == b.Side)
