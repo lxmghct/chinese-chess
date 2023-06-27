@@ -239,7 +239,6 @@ public class ComputerMove : MonoBehaviour
             writeToEngine($"{command.ToString()}\ngo depth {maxDepth} movetime {maxTime}");
             waitingForMove = true;
             engineInfo = "电脑思考中...";
-            notation.Current.Board.SetComment(command.ToString());
             engineInfoColor = node.Board.Side == SIDE.Red ? Color.red : Color.black;
         }
         catch (Exception)
